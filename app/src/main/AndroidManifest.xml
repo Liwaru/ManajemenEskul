@@ -20,6 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".DataMobilActivity"></activity>
+        <activity android:name=".DataPembeliActivity"></activity>
+        <activity android:name=".DataPaketActivity"></activity>
+        <activity android:name=".DataCashActivity"></activity>
+        <activity android:name=".DataKreditActivity"></activity>
+        <activity android:name=".DataCicilActivity"></activity>
     </application>
 
 </manifest>

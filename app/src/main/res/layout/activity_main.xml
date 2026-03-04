@@ -1,19 +1,76 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:gravity="center"
+    android:orientation="vertical"
+>
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="selamat datang di showroom ajibe"
+        android:textAlignment="center"
+        android:textSize="22sp"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/tombolmobil"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data mobil">
+
+    </Button>
+
+    <Button
+        android:id="@+id/tombolpembeli"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data pembeli">
+
+    </Button>
+
+    <Button
+        android:id="@+id/tombolpaket"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data paket">
+
+    </Button>
+
+    <Button
+        android:id="@+id/tombolbeli"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data beli cash">
+
+    </Button>
+
+    <Button
+        android:id="@+id/tombolkredit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data beli kredit">
+
+    </Button>
+
+    <Button
+        android:id="@+id/tombolcicilan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data bayar cicilan">
+
+    </Button>
+
+    <Button
+        android:id="@+id/tombollogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="logout">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </Button>
+
+
+
+
+</LinearLayout>
