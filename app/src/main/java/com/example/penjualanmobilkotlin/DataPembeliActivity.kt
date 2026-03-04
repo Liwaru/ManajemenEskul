@@ -15,6 +15,8 @@ class DataPembeliActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_pembeli)
         listview=findViewById(R.id.listpembeli)
+
+        loadData()
     }
 
     private fun loadData() {
