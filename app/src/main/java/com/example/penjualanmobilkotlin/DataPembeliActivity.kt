@@ -52,9 +52,9 @@ class DataPembeliActivity : AppCompatActivity() {
                     val obj = response.getJSONObject(i)
 
                     ktplist.add(obj.getString("ktp"))
-                    namalist.add(obj.getString("ktp"))
-                    alamatlist.add(obj.getString("ktp"))
-                    telplist.add(obj.getString("ktp"))
+                    namalist.add(obj.getString("nama_pembeli"))
+                    alamatlist.add(obj.getString("alamat_pembeli"))
+                    telplist.add(obj.getString("telp_pembeli"))
 
                         listData.add(
                             "KTP : ${obj.getString("ktp")}\n"+

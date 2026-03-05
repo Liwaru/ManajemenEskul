@@ -27,6 +27,8 @@
         <activity android:name=".DataCashActivity"></activity>
         <activity android:name=".DataKreditActivity"></activity>
         <activity android:name=".DataCicilActivity"></activity>
+        <activity android:name=".TambahPembeliActivity"></activity>
+        <activity android:name=".EditPembeliActivity"></activity>
     </application>
 
 </manifest>
