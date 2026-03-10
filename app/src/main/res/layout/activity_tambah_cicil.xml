@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Tambah Data Pembayaran Cicilan"
+        android:textAlignment="center"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/editkodecicilan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Kode Bayar Cicilan"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Kode Kredit"
+        android:textAlignment="viewStart"
+        android:textSize="13sp"
+        android:textStyle="normal" />
+
+    <Spinner
+        android:id="@+id/spinnerkodekredit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/edittanggal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:hint="Tanggal Bayar Cicilan" />
+
+    <EditText
+        android:id="@+id/editcicilke"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Cicilan ke"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/editbayar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Jumlah Cicilan"
+        android:inputType="number" />
+    <EditText
+        android:id="@+id/editsisake"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Sisa Cicilan Ke"
+        android:inputType="number" />
+    <EditText
+        android:id="@+id/editsisaharga"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Sisa Harga Cicilan"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/tombolsimpan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Simpan" />
+
+</LinearLayout>

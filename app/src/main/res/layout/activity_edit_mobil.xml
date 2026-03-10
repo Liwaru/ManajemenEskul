@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/editMerk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Merk Mobil"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tipe Mobil"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editWarna"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Warna Mobil"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editHarga"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Harga Mobil"
+        android:inputType="number" />
+    <Button
+        android:id="@+id/btnPilihFoto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pilih Foto" />
+
+    <ImageView
+        android:id="@+id/imgPreview"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"/>
+
+
+    <Button
+        android:id="@+id/btnUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btnBatal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Batal"
+        android:layout_marginTop="8dp"/>
+</LinearLayout>

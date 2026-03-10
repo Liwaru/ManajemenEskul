@@ -21,14 +21,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DataMobilActivity"></activity>
-        <activity android:name=".DataPembeliActivity"></activity>
-        <activity android:name=".DataPaketActivity"></activity>
-        <activity android:name=".DataCashActivity"></activity>
-        <activity android:name=".DataKreditActivity"></activity>
-        <activity android:name=".DataCicilActivity"></activity>
-        <activity android:name=".TambahPembeliActivity"></activity>
-        <activity android:name=".EditPembeliActivity"></activity>
+        <activity android:name=".DataMobilActivity"/>
+        <activity android:name=".TambahMobilActivity"/>
+        <activity android:name=".DataPembeliActivity"/>
+        <activity android:name=".DataCashActivity"/>
+        <activity android:name=".DataCicilActivity"/>
+        <activity android:name=".DataKreditActivity"/>
+        <activity android:name=".TambahCashActivity"/>
+        <activity android:name=".DataPaketActivity"/>
+        <activity android:name=".TambahKreditActivity"/>
+        <activity android:name=".TambahCicilActivity"/>
+        <activity android:name=".TambahPembeliActivity"/>
+        <activity android:name=".TambahPaketActivity"/>
+        <activity android:name=".EditMobilActivity"/>
+        <activity android:name=".EditPaketActivity"/>
+        <activity android:name=".EditPembeliActivity"/>
+        <activity android:name=".EditCashActivity"/>
+        <activity android:name=".EditKreditActivity"/>
+        <activity android:name=".EditCicilActivity"/>
+        <activity android:name=".BerandaSActivity"/>
+        <activity android:name=".BerandaMActivity"/>
+        <activity android:name=".LaporanKreditActivity"/>
+        <activity android:name=".LaporanCashActivity"/>
+        <activity android:name=".LaporanCicilanActivity"/>
     </application>
 
 </manifest>
