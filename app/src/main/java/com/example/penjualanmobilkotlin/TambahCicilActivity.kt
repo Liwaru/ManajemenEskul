@@ -225,7 +225,7 @@ class TambahCicilActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
 
-                if (response.contains("Data berhasil disimpan")) {
+                if (response.contains("Data berhasil disimpan!")) {
 
                     startActivity(
                         Intent(
