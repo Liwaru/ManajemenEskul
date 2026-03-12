@@ -4,13 +4,13 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONArray
+import org.json.JSONObject
 import java.util.Calendar
 
 class TambahCicilActivity : AppCompatActivity() {
@@ -26,7 +26,7 @@ class TambahCicilActivity : AppCompatActivity() {
     private lateinit var btnSimpan: Button
 
     private val listKredit = ArrayList<String>()
-    private val valKredit = ArrayList<String>()
+    private val listKreditValue = ArrayList<String>()
 
     private val bayarKredit = ArrayList<Int>()
     private val cicilanKeList = ArrayList<Int>()
@@ -35,6 +35,7 @@ class TambahCicilActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_tambah_cicil)
 
         etKodeCicilan = findViewById(R.id.editkodecicilan)
@@ -57,15 +58,15 @@ class TambahCicilActivity : AppCompatActivity() {
             object : AdapterView.OnItemSelectedListener {
 
                 override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
+                    parent: AdapterView<*>,
+                    view: android.view.View?,
                     position: Int,
                     id: Long
                 ) {
                     isiOtomatis()
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
 
         btnSimpan.setOnClickListener {
@@ -77,7 +78,7 @@ class TambahCicilActivity : AppCompatActivity() {
 
                 Toast.makeText(
                     this,
-                    "Semua Data Wajib diisi",
+                    "Harap isi semua data",
                     Toast.LENGTH_SHORT
                 ).show()
 
@@ -85,7 +86,7 @@ class TambahCicilActivity : AppCompatActivity() {
 
                 val pos = spinnerKredit.selectedItemPosition
 
-                val kodeKredit = valKredit[pos]
+                val kodeKredit = listKreditValue[pos]
 
                 val cicilKe = etCicilanKe.text.toString()
                 val jumlahCicilan = etJumlahCicilan.text.toString()
@@ -109,18 +110,22 @@ class TambahCicilActivity : AppCompatActivity() {
 
         val calendar = Calendar.getInstance()
 
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
         val dialog = DatePickerDialog(
             this,
-            { _, year, month, day ->
+            { _, y, m, d ->
 
-                val tanggal = "$year-${month + 1}-$day"
+                val tanggal = "$y-${m + 1}-$d"
 
                 etTanggal.setText(tanggal)
 
             },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+            year,
+            month,
+            day
         )
 
         dialog.show()
@@ -137,7 +142,7 @@ class TambahCicilActivity : AppCompatActivity() {
                 val jsonArray = JSONArray(response)
 
                 listKredit.clear()
-                valKredit.clear()
+                listKreditValue.clear()
                 bayarKredit.clear()
                 cicilanKeList.clear()
                 sisaKeList.clear()
@@ -152,7 +157,8 @@ class TambahCicilActivity : AppCompatActivity() {
 
                     listKredit.add("$kode - $ktp")
 
-                    valKredit.add(kode)
+                    listKreditValue.add(kode)
+
                     bayarKredit.add(obj.getInt("bayar_kredit"))
                     cicilanKeList.add(obj.getInt("cicilan_ke"))
                     sisaKeList.add(obj.getInt("sisa_ke"))
@@ -187,7 +193,9 @@ class TambahCicilActivity : AppCompatActivity() {
 
         if (pos >= 0 && pos < cicilanKeList.size) {
 
-            etCicilanKe.setText(cicilanKeList[pos].toString())
+            etCicilanKe.setText(
+                cicilanKeList[pos].toString()
+            )
 
             etJumlahCicilan.setText(
                 bayarKredit[pos].toString()
@@ -219,13 +227,20 @@ class TambahCicilActivity : AppCompatActivity() {
 
             { response ->
 
+                Log.d("Response", response)
+
+                val json = JSONObject(response)
+
+                val success = json.getBoolean("success")
+                val message = json.getString("message")
+
                 Toast.makeText(
                     this,
-                    response,
+                    message,
                     Toast.LENGTH_LONG
                 ).show()
 
-                if (response.contains("Data berhasil disimpan!")) {
+                if (success) {
 
                     startActivity(
                         Intent(
@@ -273,9 +288,9 @@ class TambahCicilActivity : AppCompatActivity() {
     companion object {
 
         private const val URL_KREDIT =
-            "http://10.208.184.71/Penjualanmobilkotlinvscode/Tampilkredithitung.php"
+            "http://192.168.0.15/Penjualanmobil/Tampilkredithitung.php"
 
         private const val URL_TAMBAH =
-            "http://10.208.184.71/Penjualanmobilkotlinvscode/TambahCicilan.php"
+            "http://192.168.0.15/Penjualanmobil/TambahCicilan.php"
     }
 }

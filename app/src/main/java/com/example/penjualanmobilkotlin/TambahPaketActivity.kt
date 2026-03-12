@@ -42,7 +42,7 @@ class TambahPaketActivity : AppCompatActivity() {
         tenor: String,
         bunga: String
     ) {
-        val url = "http://10.208.184.71/Penjualanmobilkotlinvscode/Tambahpaket.php"
+        val url = "http://10.208.184.71/Penjualanmobil/Tambahpaket.php"
 
         val request = object : StringRequest(
             Request.Method.POST, url,

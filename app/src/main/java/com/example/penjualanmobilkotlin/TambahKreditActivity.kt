@@ -4,13 +4,13 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONArray
+import org.json.JSONObject
 import java.util.Calendar
 
 class TambahKreditActivity : AppCompatActivity() {
@@ -18,18 +18,20 @@ class TambahKreditActivity : AppCompatActivity() {
     private lateinit var etKodeKredit: EditText
     private lateinit var etTanggal: EditText
     private lateinit var etCicilan: EditText
-    private lateinit var spinnerPembeli: Spinner
+
+    private lateinit var spinnerKtp: Spinner
     private lateinit var spinnerPaket: Spinner
     private lateinit var spinnerMobil: Spinner
+
     private lateinit var btnSimpan: Button
 
     private val listPembeli = ArrayList<String>()
-    private val listPaket = ArrayList<String>()
     private val listMobil = ArrayList<String>()
+    private val listPaket = ArrayList<String>()
 
-    private val valPembeli = ArrayList<String>()
-    private val valPaket = ArrayList<String>()
-    private val valMobil = ArrayList<String>()
+    private val listKtpValue = ArrayList<String>()
+    private val listMobilValue = ArrayList<String>()
+    private val listPaketValue = ArrayList<String>()
 
     private val hargaMobil = ArrayList<Int>()
     private val tenor = ArrayList<Int>()
@@ -42,13 +44,14 @@ class TambahKreditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_tambah_kredit)
 
         etKodeKredit = findViewById(R.id.editkodekredit)
         etTanggal = findViewById(R.id.edittanggal)
         etCicilan = findViewById(R.id.editcicilan)
 
-        spinnerPembeli = findViewById(R.id.spinnerktp)
+        spinnerKtp = findViewById(R.id.spinnerktp)
         spinnerPaket = findViewById(R.id.spinnerpaket)
         spinnerMobil = findViewById(R.id.spinnerkodemobil)
 
@@ -62,21 +65,35 @@ class TambahKreditActivity : AppCompatActivity() {
             showDatePicker()
         }
 
-        spinnerPaket.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                hitungCicilan()
+        spinnerPaket.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: android.view.View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    hitungCicilan()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
+        spinnerMobil.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
 
-        spinnerMobil.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                hitungCicilan()
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: android.view.View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    hitungCicilan()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
 
         btnSimpan.setOnClickListener {
 
@@ -89,13 +106,13 @@ class TambahKreditActivity : AppCompatActivity() {
 
             } else {
 
-                val posPembeli = spinnerPembeli.selectedItemPosition
+                val posPembeli = spinnerKtp.selectedItemPosition
                 val posMobil = spinnerMobil.selectedItemPosition
                 val posPaket = spinnerPaket.selectedItemPosition
 
-                val ktp = valPembeli[posPembeli]
-                val kodeMobil = valMobil[posMobil]
-                val kodePaket = valPaket[posPaket]
+                val ktp = listKtpValue[posPembeli]
+                val kodeMobil = listMobilValue[posMobil]
+                val kodePaket = listPaketValue[posPaket]
 
                 simpanData(
                     kodeKredit,
@@ -117,10 +134,9 @@ class TambahKreditActivity : AppCompatActivity() {
 
         val dialog = DatePickerDialog(
             this,
-            { _, year, month, day ->
+            { _, y, m, d ->
 
-                val tanggal = "$year-${month + 1}-$day"
-
+                val tanggal = "$y-${m + 1}-$d"
                 etTanggal.setText(tanggal)
 
             },
@@ -146,7 +162,6 @@ class TambahKreditActivity : AppCompatActivity() {
             val dpPersen = uangMuka[posPaket]
 
             tenorDipilih = tenor[posPaket]
-
             val bungaPaket = bunga[posPaket]
 
             val dpRupiah = harga * dpPersen / 100.0
@@ -165,13 +180,16 @@ class TambahKreditActivity : AppCompatActivity() {
 
     private fun loadPembeli() {
 
-        val request = StringRequest(Request.Method.GET, URL_PEMBELI,
+        val request = StringRequest(
+            Request.Method.GET,
+            URL_PEMBELI,
+
             { response ->
 
                 val jsonArray = JSONArray(response)
 
                 listPembeli.clear()
-                valPembeli.clear()
+                listKtpValue.clear()
 
                 for (i in 0 until jsonArray.length()) {
 
@@ -181,7 +199,7 @@ class TambahKreditActivity : AppCompatActivity() {
                     val nama = obj.getString("nama_pembeli")
 
                     listPembeli.add("$ktp - $nama")
-                    valPembeli.add(ktp)
+                    listKtpValue.add(ktp)
                 }
 
                 val adapter = ArrayAdapter(
@@ -190,27 +208,33 @@ class TambahKreditActivity : AppCompatActivity() {
                     listPembeli
                 )
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                adapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+                )
 
-                spinnerPembeli.adapter = adapter
+                spinnerKtp.adapter = adapter
 
             },
             { error ->
                 Log.e("Volley", error.toString())
-            })
+            }
+        )
 
         Volley.newRequestQueue(this).add(request)
     }
 
     private fun loadMobil() {
 
-        val request = StringRequest(Request.Method.GET, URL_MOBIL,
+        val request = StringRequest(
+            Request.Method.GET,
+            URL_MOBIL,
+
             { response ->
 
                 val jsonArray = JSONArray(response)
 
                 listMobil.clear()
-                valMobil.clear()
+                listMobilValue.clear()
                 hargaMobil.clear()
 
                 for (i in 0 until jsonArray.length()) {
@@ -220,12 +244,11 @@ class TambahKreditActivity : AppCompatActivity() {
                     val kode = obj.getString("kode_mobil")
                     val merk = obj.getString("merk")
                     val type = obj.getString("type")
-
                     val harga = obj.getInt("harga")
 
                     listMobil.add("$kode - $merk $type")
 
-                    valMobil.add(kode)
+                    listMobilValue.add(kode)
                     hargaMobil.add(harga)
                 }
 
@@ -235,27 +258,33 @@ class TambahKreditActivity : AppCompatActivity() {
                     listMobil
                 )
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                adapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+                )
 
                 spinnerMobil.adapter = adapter
 
             },
             { error ->
                 Log.e("Volley", error.toString())
-            })
+            }
+        )
 
         Volley.newRequestQueue(this).add(request)
     }
 
     private fun loadPaket() {
 
-        val request = StringRequest(Request.Method.GET, URL_PAKET,
+        val request = StringRequest(
+            Request.Method.GET,
+            URL_PAKET,
+
             { response ->
 
                 val jsonArray = JSONArray(response)
 
                 listPaket.clear()
-                valPaket.clear()
+                listPaketValue.clear()
                 uangMuka.clear()
                 tenor.clear()
                 bunga.clear()
@@ -269,9 +298,9 @@ class TambahKreditActivity : AppCompatActivity() {
                     val tnr = obj.getInt("tenor")
                     val bng = obj.getDouble("bunga_cicilan")
 
-                    listPaket.add("$kode - DP:$dp% Tenor:$tnr Bunga$bng%")
+                    listPaket.add("$kode - DP:$dp% Tenor:$tnr Bunga:$bng%")
 
-                    valPaket.add(kode)
+                    listPaketValue.add(kode)
                     uangMuka.add(dp)
                     tenor.add(tnr)
                     bunga.add(bng)
@@ -283,14 +312,17 @@ class TambahKreditActivity : AppCompatActivity() {
                     listPaket
                 )
 
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                adapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+                )
 
                 spinnerPaket.adapter = adapter
 
             },
             { error ->
                 Log.e("Volley", error.toString())
-            })
+            }
+        )
 
         Volley.newRequestQueue(this).add(request)
     }
@@ -307,13 +339,21 @@ class TambahKreditActivity : AppCompatActivity() {
     ) {
 
         val request = object : StringRequest(
-            Method.POST, URL_TAMBAH,
+            Method.POST,
+            URL_TAMBAH,
 
             { response ->
 
-                Toast.makeText(this, response, Toast.LENGTH_LONG).show()
+                Log.d("Response", response)
 
-                if (response.contains("Data berhasil disimpan")) {
+                val json = JSONObject(response)
+
+                val success = json.getBoolean("success")
+                val message = json.getString("message")
+
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+
+                if (success) {
 
                     startActivity(
                         Intent(this, DataKreditActivity::class.java)
@@ -321,7 +361,6 @@ class TambahKreditActivity : AppCompatActivity() {
 
                     finish()
                 }
-
             },
 
             { error ->
@@ -360,15 +399,15 @@ class TambahKreditActivity : AppCompatActivity() {
     companion object {
 
         private const val URL_TAMBAH =
-            "http://10.208.184.71/Penjualanmobilkotlinvscode/TambahKredit.php"
+            "http://192.168.0.15/Penjualanmobil/TambahKredit.php"
 
         private const val URL_PEMBELI =
-            "http://10.208.184.71/Penjualanmobilkotlinvscode/Tampilpembeli.php"
+            "http://192.168.0.15/Penjualanmobil/Tampilpembeli.php"
 
         private const val URL_MOBIL =
-            "http://10.208.184.71/Penjualanmobilkotlinvscode/Tampilmobil.php"
+            "http://192.168.0.15/Penjualanmobil/Tampilmobil.php"
 
         private const val URL_PAKET =
-            "http://10.208.184.71/Penjualanmobilkotlinvscode/Tampilpaket.php"
+            "http://192.168.0.15/Penjualanmobil/Tampilpaket.php"
     }
 }
