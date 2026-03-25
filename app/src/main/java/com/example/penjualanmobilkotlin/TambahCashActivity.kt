@@ -221,12 +221,12 @@
         companion object {
     
             private const val URL_TAMBAH =
-                "http://192.168.0.15/Penjualanmobil/TambahCash.php"
+                "http://10.80.250.56/Penjualanmobil/TambahCash.php"
     
             private const val URL_PEMBELI =
-                "http://192.168.0.15/Penjualanmobil/Tampilpembeli.php"
+                "http://10.80.250.56/Penjualanmobil/Tampilpembeli.php"
     
             private const val URL_MOBIL =
-                "http://192.168.0.15/Penjualanmobil/Tampilmobil.php"
+                "http://10.80.250.56/Penjualanmobil/Tampilmobil.php"
         }
     }

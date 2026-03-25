@@ -212,6 +212,6 @@ class TambahMobilActivity : AppCompatActivity() {
         private const val PICK_IMAGE_REQUEST = 1
 
         private const val URL =
-            "http://192.168.0.15/Penjualanmobil/Tambahmobil.php"
+            "http://10.80.250.56/Penjualanmobil/Tambahmobil.php"
     }
 }

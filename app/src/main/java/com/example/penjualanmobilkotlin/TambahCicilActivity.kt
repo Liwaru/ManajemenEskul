@@ -71,38 +71,38 @@ class TambahCicilActivity : AppCompatActivity() {
 
         btnSimpan.setOnClickListener {
 
-            val kodeCicilan = etKodeCicilan.text.toString()
-            val tanggal = etTanggal.text.toString()
+            val kodeCicilan = etKodeCicilan.text.toString().trim()
+            val tanggal = etTanggal.text.toString().trim()
+            val cicilKe = etCicilanKe.text.toString().trim()
+            val jumlahCicilan = etJumlahCicilan.text.toString().trim()
+            val sisaKe = etSisaKe.text.toString().trim()
+            val sisaCicilan = etSisaCicilan.text.toString().trim()
 
-            if (kodeCicilan.isEmpty() || tanggal.isEmpty()) {
-
-                Toast.makeText(
-                    this,
-                    "Harap isi semua data",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            } else {
-
-                val pos = spinnerKredit.selectedItemPosition
-
-                val kodeKredit = listKreditValue[pos]
-
-                val cicilKe = etCicilanKe.text.toString()
-                val jumlahCicilan = etJumlahCicilan.text.toString()
-                val sisaKe = etSisaKe.text.toString()
-                val sisaCicilan = etSisaCicilan.text.toString()
-
-                simpanData(
-                    kodeCicilan,
-                    kodeKredit,
-                    tanggal,
-                    cicilKe,
-                    jumlahCicilan,
-                    sisaKe,
-                    sisaCicilan
-                )
+            if (kodeCicilan.isEmpty() || tanggal.isEmpty() ||
+                cicilKe.isEmpty() || jumlahCicilan.isEmpty() ||
+                sisaKe.isEmpty() || sisaCicilan.isEmpty()
+            ) {
+                Toast.makeText(this, "Semua data wajib diisi!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (listKreditValue.isEmpty()) {
+                Toast.makeText(this, "Data kredit belum siap!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val pos = spinnerKredit.selectedItemPosition
+            val kodeKredit = listKreditValue[pos]
+
+            simpanData(
+                kodeCicilan,
+                kodeKredit,
+                tanggal,
+                cicilKe,
+                jumlahCicilan,
+                sisaKe,
+                sisaCicilan
+            )
         }
     }
 
@@ -288,9 +288,9 @@ class TambahCicilActivity : AppCompatActivity() {
     companion object {
 
         private const val URL_KREDIT =
-            "http://192.168.0.15/Penjualanmobil/Tampilkredithitung.php"
+            "http://10.80.250.56/Penjualanmobil/Tampilkredithitung.php"
 
         private const val URL_TAMBAH =
-            "http://192.168.0.15/Penjualanmobil/TambahCicilan.php"
+            "http://10.80.250.56/Penjualanmobil/TambahCicilan.php"
     }
 }

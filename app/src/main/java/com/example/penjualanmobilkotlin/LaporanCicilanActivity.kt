@@ -182,6 +182,6 @@ class LaporanCicilanActivity : AppCompatActivity() {
     companion object {
 
         private const val URL_LAPOR =
-            "http://192.168.0.15/penjualanmobil/LaporanCicilan.php"
+            "http://10.80.250.56/penjualanmobil/LaporanCicilan.php"
     }
 }

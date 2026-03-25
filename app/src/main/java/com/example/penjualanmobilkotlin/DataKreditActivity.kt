@@ -53,7 +53,7 @@ class DataKreditActivity : AppCompatActivity() {
 
     private fun loadData() {
 
-        val url = "http://192.168.0.15/penjualanmobil/TampilKredit.php"
+        val url = "http://10.80.250.56/penjualanmobil/TampilKredit.php"
 
         val request = JsonArrayRequest(
             url,
@@ -165,7 +165,7 @@ class DataKreditActivity : AppCompatActivity() {
 
     private fun hapusData(kodeKredit: String) {
 
-        val url = "http://192.168.0.15/penjualanmobil/hapusKredit.php"
+        val url = "http://10.80.250.56/penjualanmobil/hapusKredit.php"
 
         val request = object : StringRequest(
             Request.Method.POST,

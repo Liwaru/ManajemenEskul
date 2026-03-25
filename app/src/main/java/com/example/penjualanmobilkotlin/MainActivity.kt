@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     private var edituser: EditText? = null
     private var editppass: EditText? = null
     private var tombolsimpan: Button? = null
-    private val URL_LOGIN: String = "http://192.168.0.15/penjualanmobil/login.php"
+    private val URL_LOGIN: String = "http://10.80.250.56/penjualanmobil/login.php"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

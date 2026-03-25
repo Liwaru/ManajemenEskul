@@ -52,10 +52,12 @@ class DataMobilActivity : AppCompatActivity() {
 
     private fun loadData() {
 
-        val url = "http://192.168.0.15/Penjualanmobil/Tampilmobil.php"
+        val url = "http://10.80.250.56/Penjualanmobil/Tampilmobil.php"
 
         val request = JsonArrayRequest(
+            Request.Method.GET,
             url,
+            null,
             { response ->
 
                 listData.clear()
@@ -88,9 +90,10 @@ class DataMobilActivity : AppCompatActivity() {
 
                 adapter.notifyDataSetChanged()
             },
-            {
+            { error ->
                 Toast.makeText(this, "Gagal memuat data", Toast.LENGTH_SHORT).show()
-            })
+            }
+        )
 
         Volley.newRequestQueue(this).add(request)
     }
@@ -141,7 +144,7 @@ class DataMobilActivity : AppCompatActivity() {
 
     private fun hapusData(kodeMobil: String) {
 
-        val url = "http://192.168.0.15/Penjualanmobil/hapusmobil.php"
+        val url = "http://10.80.250.56/Penjualanmobil/hapusmobil.php"
 
         val request = object : StringRequest(
             Request.Method.POST,

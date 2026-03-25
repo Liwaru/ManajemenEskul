@@ -51,7 +51,7 @@ class DataCashActivity : AppCompatActivity() {
 
     private fun loadData() {
 
-        val url = "http://192.168.0.15/penjualanmobil/Tampilcash.php"
+        val url = "http://10.80.250.56/penjualanmobil/Tampilcash.php"
 
         val request = JsonArrayRequest(
             url,
@@ -154,7 +154,7 @@ class DataCashActivity : AppCompatActivity() {
 
     private fun hapusData(kodeCash: String) {
 
-        val url = "http://192.168.0.15/penjualanmobil/hapuscash.php"
+        val url = "http://10.80.250.56/penjualanmobil/hapuscash.php"
 
         val request = object : StringRequest(
             Request.Method.POST,

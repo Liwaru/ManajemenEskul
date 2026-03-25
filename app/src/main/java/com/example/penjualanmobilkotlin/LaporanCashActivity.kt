@@ -25,7 +25,7 @@ class LaporanCashActivity : AppCompatActivity() {
 
     companion object {
         private const val URL_LAPOR =
-            "http://10.36.65.151/penjualanmobil/LaporanCash.php"
+            "http://10.80.250.56/penjualanmobil/LaporanCash.php"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -20,7 +20,7 @@ class DataCicilActivity : AppCompatActivity() {
 
     private val listData = ArrayList<String>()
 
-    private val URL_TAMPIL = "http://192.168.0.15/penjualanmobil/Tampilcicilan.php"
+    private val URL_TAMPIL = "http://10.80.250.56/penjualanmobil/Tampilcicilan.php"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
