@@ -8,38 +8,35 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="SmartEskul - Siswa"
+        android:text="Dashboard Pembina"
         android:textAlignment="center"
         android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp"/>
 
     <Button
-        android:id="@+id/tomboldaftar"
+        android:id="@+id/btnAnggota"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Daftar Eskul" />
+        android:text="Data Anggota Eskul"
+        android:layout_marginBottom="10dp"/>
 
     <Button
-        android:id="@+id/tomboleskulsaya"
+        android:id="@+id/btnPendaftaran"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Eskul Saya" />
+        android:text="List Pendaftaran"
+        android:layout_marginBottom="10dp"/>
 
     <Button
-        android:id="@+id/tombolabsensi"
+        android:id="@+id/btnAbsensi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Absensi" />
+        android:text="Absensi Siswa"
+        android:layout_marginBottom="10dp"/>
 
     <Button
-        android:id="@+id/tombolprofil"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Profil Siswa" />
-
-    <Button
-        android:id="@+id/tombollogout"
+        android:id="@+id/btnLogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Logout"
