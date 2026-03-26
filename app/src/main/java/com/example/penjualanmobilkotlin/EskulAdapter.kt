@@ -8,10 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.penjualanmobilkotlin.EskulData
 
 class EskulAdapter(
-    private val listEskul: List<Eskul>
+    private val list: List<Eskul>,
+    private val onClick: (Eskul) -> Unit
 ) : RecyclerView.Adapter<EskulAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imgEskul: ImageView = view.findViewById(R.id.imgEskul)
         val txtNama: TextView = view.findViewById(R.id.txtNama)
         val txtJadwal: TextView = view.findViewById(R.id.txtJadwal)
@@ -24,61 +25,19 @@ class EskulAdapter(
         return ViewHolder(view)
     }
 
-    override fun getItemCount(): Int = listEskul.size
+    override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val eskul = listEskul[position]
+        val eskul = list[position]
 
-        holder.imgEskul.setImageResource(eskul.gambar)
+        // ✅ SET DATA (INI YANG HILANG TADI)
         holder.txtNama.text = eskul.nama
         holder.txtJadwal.text = eskul.jadwal
+        holder.imgEskul.setImageResource(eskul.gambar)
 
-        // cek apakah sudah daftar
-        if (EskulData.eskulDipilih.contains(eskul)) {
-            holder.btnDaftar.text = "Sudah Terdaftar"
-            holder.btnDaftar.isEnabled = false
-        } else {
-            holder.btnDaftar.text = "Daftar"
-            holder.btnDaftar.isEnabled = true
-        }
-
+        // ✅ KLIK DAFTAR
         holder.btnDaftar.setOnClickListener {
-
-            val context = holder.itemView.context
-            val session = SessionManager(context)
-            val idUser = session.getIdUser()
-
-            val url = "http://192.168.1.8/manajemeneskul/daftar_eskul.php"
-
-            val request = object : com.android.volley.toolbox.StringRequest(
-                Method.POST, url,
-                { response ->
-                    val json = org.json.JSONObject(response)
-
-                    Toast.makeText(
-                        context,
-                        json.getString("message"),
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    if (json.getBoolean("success")) {
-                        EskulData.eskulDipilih.add(eskul)
-                        notifyDataSetChanged() // 🔥 fix
-                    }
-                },
-                {
-                    Toast.makeText(context, "Gagal koneksi", Toast.LENGTH_SHORT).show()
-                }
-            ) {
-                override fun getParams(): MutableMap<String, String> {
-                    return hashMapOf(
-                        "id_user" to idUser!!,
-                        "id_eskul" to eskul.id.toString() // 🔥 fix
-                    )
-                }
-            }
-
-            com.android.volley.toolbox.Volley.newRequestQueue(context).add(request)
+            onClick(eskul)
         }
     }
 }

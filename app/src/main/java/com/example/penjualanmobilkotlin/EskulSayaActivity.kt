@@ -30,24 +30,27 @@ class EskulSayaActivity : AppCompatActivity() {
         val session = SessionManager(this)
         val idUser = session.getIdUser()
 
-        val url = "http://192.168.1.8/manajemeneskul/eskul_saya.php"
+        val url = "http://192.168.0.15/manajemeneskul/eskul_saya.php"
 
         val request = object : com.android.volley.toolbox.StringRequest(
             Method.POST, url,
             { response ->
 
                 val jsonArray = org.json.JSONArray(response)
+
                 listData.clear()
 
-                for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
+                if (jsonArray.length() == 0) {
+                    listData.add("Kamu belum mendaftar eskul")
+                } else {
+                    for (i in 0 until jsonArray.length()) {
+                        val obj = jsonArray.getJSONObject(i)
 
-                    val nama = obj.getString("nama_eskul")
-                    val pembina = obj.getString("nama_pembina")
+                        val nama = obj.getString("nama_eskul")
+                        val pembina = obj.getString("nama_pembina")
 
-                    listData.add(
-                        "Eskul: $nama\nPembina: $pembina"
-                    )
+                        listData.add("Eskul: $nama\nPembina: $pembina")
+                    }
                 }
 
                 adapter.notifyDataSetChanged()

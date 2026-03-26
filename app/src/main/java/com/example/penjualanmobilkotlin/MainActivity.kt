@@ -2,11 +2,14 @@ package com.example.penjualanmobilkotlin
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.AuthFailureError
 import com.android.volley.Response
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONException
@@ -16,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     private var edituser: EditText? = null
     private var editppass: EditText? = null
     private var tombolsimpan: Button? = null
-    private val URL_LOGIN: String = "http://192.168.1.8/manajemeneskul/login.php"
+    private val URL_LOGIN: String = "http://192.168.0.15/manajemeneskul/login.php"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,11 +37,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loginUser() {
-        val username = edituser?.text.toString().trim()
+        val nama = edituser?.text.toString().trim()
         val password = editppass?.text.toString().trim()
 
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Username dan password tidak boleh kosong", Toast.LENGTH_SHORT).show()
+        if (nama.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "nama dan password tidak boleh kosong", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -49,15 +52,14 @@ class MainActivity : AppCompatActivity() {
                     val json = JSONObject(response)
                     val success = json.getBoolean("success")
                     if (success) {
-
-                        val idUser = json.getString("id_user") // ambil dari PHP
-                        val idEskul = json.getString("id_eskul")
                         val level = json.getInt("level")
+                        val idUser = json.getString("id_user") // 🔥 TAMBAHAN
 
-                        // 🔥 SIMPAN SESSION DI SINI
                         val session = SessionManager(this)
-                        session.saveSession(idUser, idEskul)
+                        session.saveSession(idUser, "") // simpan id_user
 
+                        // DEBUG (hapus nanti)
+                        Toast.makeText(this, "Login sukses ID: $idUser", Toast.LENGTH_SHORT).show()
                         // Navigasi berdasarkan level user
                         when (level) {
                             1 -> {
@@ -83,7 +85,7 @@ class MainActivity : AppCompatActivity() {
             }) {
             override fun getParams(): MutableMap<String, String> {
                 val params = HashMap<String, String>()
-                params["username"] = username
+                params["nama"] = nama
                 params["password"] = password
                 return params
             }

@@ -20,7 +20,7 @@ class ProfilSiswaActivity : AppCompatActivity() {
         val session = SessionManager(this)
         val idUser = session.getIdUser()
 
-        val url = "http://192.168.1.8/manajemeneskul/get_profil.php"
+        val url = "http://192.168.0.15/manajemeneskul/get_profil.php"
 
         val request = object : StringRequest(
             Method.POST, url,

@@ -4,7 +4,7 @@ import android.content.Context
 
 class SessionManager(context: Context) {
 
-    private val pref = context.getSharedPreferences("session", Context.MODE_PRIVATE)
+    private val pref = context.getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
 
     companion object {
         private const val KEY_ID_USER = "id_user"

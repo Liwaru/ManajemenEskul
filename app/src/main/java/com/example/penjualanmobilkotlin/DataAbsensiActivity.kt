@@ -3,6 +3,8 @@ package com.example.penjualanmobilkotlin
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,18 +28,46 @@ class DataAbsensiActivity : AppCompatActivity() {
 
     private fun loadEskulSaya() {
 
-        listData.clear()
+        val session = SessionManager(this)
+        val idUser = session.getIdUser()
 
-        // ambil dari eskul yang sudah didaftarkan
-        for (eskul in EskulData.eskulDipilih) {
-            listData.add("${eskul.nama} (Klik untuk absen)")
+        if (idUser == null) {
+            Toast.makeText(this, "User belum login", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        adapter.notifyDataSetChanged()
+        val url = "http://192.168.0.15/manajemeneskul/absensi_data.php"
 
-        listView.setOnItemClickListener { _, _, position, _ ->
-            absen(position)
+        val request = object : StringRequest(
+            Method.POST, url,
+            { response ->
+
+                val jsonArray = org.json.JSONArray(response)
+                listData.clear()
+
+                if (jsonArray.length() == 0) {
+                    listData.add("Kamu belum mendaftar eskul")
+                } else {
+                    for (i in 0 until jsonArray.length()) {
+                        val obj = jsonArray.getJSONObject(i)
+                        val nama = obj.getString("nama_eskul")
+
+                        listData.add("$nama (Klik untuk absen)")
+                    }
+                }
+
+                adapter.notifyDataSetChanged()
+            },
+            {
+                Toast.makeText(this, "Gagal ambil data", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getParams(): MutableMap<String, String> {
+                return hashMapOf("id_user" to idUser)
+            }
         }
+
+        Volley.newRequestQueue(this).add(request)
     }
 
     private fun absen(position: Int) {
