@@ -5,6 +5,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import org.json.JSONArray
 
 class EskulSayaActivity : AppCompatActivity() {
 
@@ -34,26 +35,37 @@ class EskulSayaActivity : AppCompatActivity() {
 
         val request = object : com.android.volley.toolbox.StringRequest(
             Method.POST, url,
-            { response ->
+            StringRequest@{ response ->
 
-                val jsonArray = org.json.JSONArray(response)
-
-                listData.clear()
-
-                if (jsonArray.length() == 0) {
-                    listData.add("Kamu belum mendaftar eskul")
-                } else {
-                    for (i in 0 until jsonArray.length()) {
-                        val obj = jsonArray.getJSONObject(i)
-
-                        val nama = obj.getString("nama_eskul")
-                        val pembina = obj.getString("nama_pembina")
-
-                        listData.add("Eskul: $nama\nPembina: $pembina")
+                try {
+                    if (!response.trim().startsWith("[")) {
+                        Toast.makeText(this, "Response error:\n$response", Toast.LENGTH_LONG).show()
+                        return@StringRequest
                     }
+
+                    val jsonArray = JSONArray(response)
+
+                    listData.clear()
+
+                    if (jsonArray.length() == 0) {
+                        listData.add("Kamu belum mendaftar eskul")
+                    } else {
+                        for (i in 0 until jsonArray.length()) {
+                            val obj = jsonArray.getJSONObject(i)
+
+                            val nama = obj.getString("nama_eskul")
+                            val pembina = obj.getString("nama_pembina")
+
+                            listData.add("Eskul: $nama\nPembina: $pembina")
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged()
+
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Parsing error:\n${e.message}", Toast.LENGTH_LONG).show()
                 }
 
-                adapter.notifyDataSetChanged()
             },
             {
                 Toast.makeText(this, "Gagal ambil data", Toast.LENGTH_SHORT).show()

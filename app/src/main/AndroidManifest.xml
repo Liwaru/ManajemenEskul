@@ -23,7 +23,9 @@
         </activity>
         <activity android:name=".BerandaPActivity"/>
         <activity android:name=".BerandaSActivity"/>
+        <activity android:name=".BerandaAActivity"/> <!-- 🔥 TAMBAHAN -->
         <activity android:name=".DaftarEskulActivity"/>
+        <activity android:name=".DataPembinaActivity"/>
         <activity android:name=".EskulSayaActivity"/>
         <activity android:name=".DataAbsensiActivity"/>
         <activity android:name=".DataAnggotaActivity"/>

@@ -49,10 +49,22 @@ class DaftarEskulActivity : AppCompatActivity() {
 
         val request = object : StringRequest(
             Method.POST, URL_DAFTAR,
-            { response ->
-                val json = JSONObject(response)
-                val message = json.getString("message")
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            StringRequest@{ response ->
+
+                try {
+                    if (!response.trim().startsWith("{")) {
+                        Toast.makeText(this, "Response bukan JSON:\n$response", Toast.LENGTH_LONG).show()
+                        return@StringRequest
+                    }
+
+                    val json = JSONObject(response)
+                    val message = json.getString("message")
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+
             },
             { error ->
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()

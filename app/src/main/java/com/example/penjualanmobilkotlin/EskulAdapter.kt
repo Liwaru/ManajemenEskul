@@ -1,43 +1,57 @@
-package com.example.penjualanmobilkotlin
+package com.example.penjualanmobilkotlin.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.example.penjualanmobilkotlin.EskulData
+import com.bumptech.glide.Glide
+import com.example.penjualanmobilkotlin.Eskul
+import com.example.penjualanmobilkotlin.R
 
 class EskulAdapter(
-    private val list: List<Eskul>,
-    private val onClick: (Eskul) -> Unit
-) : RecyclerView.Adapter<EskulAdapter.ViewHolder>() {
+    private val eskulList: List<Eskul>,
+    private val sessionIdPembina: Int,
+    private val onEditClick: (Eskul) -> Unit
+) : RecyclerView.Adapter<EskulAdapter.EskulViewHolder>() {
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val imgEskul: ImageView = view.findViewById(R.id.imgEskul)
-        val txtNama: TextView = view.findViewById(R.id.txtNama)
-        val txtJadwal: TextView = view.findViewById(R.id.txtJadwal)
-        val btnDaftar: Button = view.findViewById(R.id.btnDaftar)
+    inner class EskulViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imgEskul: ImageView = itemView.findViewById(R.id.imgEskul)
+        val tvNamaEskul: TextView = itemView.findViewById(R.id.tvNamaEskul)
+        val tvNamaPembina: TextView = itemView.findViewById(R.id.tvNamaPembina)
+        val tvJamMulai: TextView = itemView.findViewById(R.id.tvJamMulai)
+        val tvJamSelesai: TextView = itemView.findViewById(R.id.tvJamSelesai)
+        val btnEdit: Button = itemView.findViewById(R.id.btnEdit)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_eskul, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EskulViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_eskul, parent, false)
+        return EskulViewHolder(view)
     }
 
-    override fun getItemCount(): Int = list.size
+    override fun getItemCount(): Int = eskulList.size
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val eskul = list[position]
+    override fun onBindViewHolder(holder: EskulViewHolder, position: Int) {
+        val eskul = eskulList[position]
 
-        // ✅ SET DATA (INI YANG HILANG TADI)
-        holder.txtNama.text = eskul.nama
-        holder.txtJadwal.text = eskul.jadwal
-        holder.imgEskul.setImageResource(eskul.gambar)
+        holder.tvNamaEskul.text = eskul.namaEskul
+        holder.tvNamaPembina.text = "Pembina: ${eskul.namaPembina}"
+        holder.tvJamMulai.text = "Jam Mulai: ${eskul.jamMulai}"
+        holder.tvJamSelesai.text = "Jam Selesai: ${eskul.jamSelesai}"
 
-        // ✅ KLIK DAFTAR
-        holder.btnDaftar.setOnClickListener {
-            onClick(eskul)
+        Glide.with(holder.itemView.context)
+            .load(eskul.gambar)
+            .placeholder(R.drawable.ic_default_eskul)
+            .error(R.drawable.ic_default_eskul)
+            .into(holder.imgEskul)
+
+        if (eskul.idPembina == sessionIdPembina) {
+            holder.btnEdit.visibility = View.VISIBLE
+            holder.btnEdit.setOnClickListener {
+                onEditClick(eskul)
+            }
+        } else {
+            holder.btnEdit.visibility = View.GONE
         }
     }
 }

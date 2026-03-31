@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+           // jika pakai Kotlin dan annotation processor
     implementation("io.coil-kt:coil:2.6.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -49,6 +49,11 @@ class MainActivity : AppCompatActivity() {
             Method.POST, URL_LOGIN,
             Response.Listener { response ->
                 try {
+                    if (!response.trim().startsWith("{")) {
+                        Toast.makeText(this, "Response error:\n$response", Toast.LENGTH_LONG).show()
+                        return@Listener
+                    }
+
                     val json = JSONObject(response)
                     val success = json.getBoolean("success")
                     if (success) {
@@ -70,6 +75,11 @@ class MainActivity : AppCompatActivity() {
                                 startActivity(Intent(this, BerandaPActivity::class.java))
                                 finish()
                             }
+                            3 -> {
+                                startActivity(Intent(this, BerandaAActivity::class.java))
+                                finish()
+                            }
+
                             else -> Toast.makeText(this, "Level tidak dikenali", Toast.LENGTH_SHORT).show()
                         }
                     } else {
