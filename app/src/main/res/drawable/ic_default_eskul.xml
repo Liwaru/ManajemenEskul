@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Contoh ikon sekolah sederhana -->
+    <path
+        android:fillColor="#9E9E9E"
+        android:pathData="M12 2 L22 7 L22 20 H2 V7 L12 2 Z M12 2 L12 12 H2 V7 L12 2 Z M12 2 L22 7 V12 H12 V2 Z"/>
+</vector>

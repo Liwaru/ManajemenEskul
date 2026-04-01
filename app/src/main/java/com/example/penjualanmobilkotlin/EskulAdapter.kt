@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.load
 import com.example.penjualanmobilkotlin.Eskul
 import com.example.penjualanmobilkotlin.R
 
@@ -39,11 +39,11 @@ class EskulAdapter(
         holder.tvJamMulai.text = "Jam Mulai: ${eskul.jamMulai}"
         holder.tvJamSelesai.text = "Jam Selesai: ${eskul.jamSelesai}"
 
-        Glide.with(holder.itemView.context)
-            .load(eskul.gambar)
-            .placeholder(R.drawable.ic_default_eskul)
-            .error(R.drawable.ic_default_eskul)
-            .into(holder.imgEskul)
+        // Ganti Glide dengan Coil
+        holder.imgEskul.load(eskul.gambar) {
+            placeholder(R.drawable.ic_default_eskul)
+            error(R.drawable.ic_default_eskul)
+        }
 
         if (eskul.idPembina == sessionIdPembina) {
             holder.btnEdit.visibility = View.VISIBLE

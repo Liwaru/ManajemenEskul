@@ -78,12 +78,12 @@ class DataAbsensiActivity : AppCompatActivity() {
 
         AbsensiData.listAbsensi.add(
             Absensi(
-                eskul.nama,
+                eskul.namaEskul,
                 tanggal,
                 "Hadir"
             )
         )
 
-        Toast.makeText(this, "Absen ${eskul.nama} berhasil", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Absen ${eskul.namaEskul} berhasil", Toast.LENGTH_SHORT).show()
     }
 }
