@@ -1,73 +1,48 @@
 package com.example.penjualanmobilkotlin
 
 import android.os.Bundle
-import android.widget.Button
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Request
+import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.penjualanmobilkotlin.adapter.EskulAdapter
 import org.json.JSONArray
+import org.json.JSONException
 
 class DataPembinaActivity : AppCompatActivity() {
 
-    private lateinit var rvEskul: RecyclerView
-    private lateinit var btnTambahEskul: Button
-
-    private val sessionIdPembina = 1 // Contoh ID pembina dari session login
+    private lateinit var listView: ListView
+    private lateinit var listData: ArrayList<String>
+    private lateinit var adapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_pembina)
 
-        rvEskul = findViewById(R.id.rvEskul)
-        btnTambahEskul = findViewById(R.id.btnTambahEskul)
-
-        rvEskul.layoutManager = LinearLayoutManager(this)
-
-        btnTambahEskul.setOnClickListener {
-            Toast.makeText(this, "Tambah Eskul clicked", Toast.LENGTH_SHORT).show()
-            // Implementasi tambah eskul di sini
-        }
+        listView = findViewById(R.id.listPembina)
+        listData = ArrayList()
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listData)
+        listView.adapter = adapter
 
         loadDataPembina()
     }
 
     private fun loadDataPembina() {
-        val url = "http://192.168.0.15/manajemeneskul/data_pembina.php"
-
-        val request = StringRequest(Request.Method.GET, url,
-            { response ->
-                val jsonArray = JSONArray(response)
-                val eskulList = mutableListOf<Eskul>()
-
-                for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
-                    val eskul = Eskul(
-                        idEskul = obj.getInt("id_eskul"),
-                        namaEskul = obj.getString("nama_eskul"),
-                        namaPembina = obj.getString("nama_pembina"),
-                        idPembina = obj.getInt("id_pembina"),
-                        jamMulai = obj.getString("jam_mulai"),
-                        jamSelesai = obj.getString("jam_selesai"),
-                        gambar = obj.getString("gambar")
-                    )
-                    eskulList.add(eskul)
-                }
-
-                val adapter = EskulAdapter(eskulList, sessionIdPembina) { eskul ->
-                    Toast.makeText(this, "Edit ${eskul.namaEskul}", Toast.LENGTH_SHORT).show()
-                    // Implementasi edit eskul di sini
-                }
-                rvEskul.adapter = adapter
-
-            }, {
-                Toast.makeText(this, "Gagal ambil data pembina", Toast.LENGTH_SHORT).show()
-            })
-
+        val url = "http://10.0.2.2/manajemeneskul/get_pembina.php" // ganti IP sesuai
+        val request = object : StringRequest(
+            Method.GET, url,  // Gunakan GET dulu untuk testing
+            Response.Listener { response ->
+                android.util.Log.d("RAW_RESPONSE", response)
+                Toast.makeText(this, "Response: $response", Toast.LENGTH_LONG).show()
+                // ... proses JSON nanti jika sukses
+            },
+            Response.ErrorListener { error ->
+                android.util.Log.e("VOLLEY_ERROR", error.toString())
+                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        ) {}
         Volley.newRequestQueue(this).add(request)
     }
 }

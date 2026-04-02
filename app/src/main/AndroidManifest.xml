@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    package="com.example.penjualanmobilkotlin">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="manajemeneskul"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Penjualanmobilkotlin">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BerandaPActivity"/>
-        <activity android:name=".BerandaSActivity"/>
-        <activity android:name=".BerandaAActivity"/> <!-- 🔥 TAMBAHAN -->
-        <activity android:name=".DaftarEskulActivity"/>
-        <activity android:name=".DataPembinaActivity"/>
-        <activity android:name=".EskulSayaActivity"/>
-        <activity android:name=".DataAbsensiActivity"/>
-        <activity android:name=".DataAnggotaActivity"/>
-        <activity android:name=".ProfilSiswaActivity"/>
-        <activity android:name=".AbsensiSiswaActivity"/>
-        <activity android:name=".ListPendaftaranActivity"/>
+
+        <activity android:name=".BerandaSActivity" />
+        <activity android:name=".BerandaPActivity" />
+        <activity android:name=".BerandaAActivity" />
+        <activity android:name=".DaftarEskulActivity" />   <!-- perbaiki nama -->
+        <activity android:name=".DataPembinaActivity" />
+        <activity android:name=".DataAbsensiActivity" />
+        <activity android:name=".EskulSayaActivity" />
+        <activity android:name=".ListPendaftaranActivity" />
+        <activity android:name=".ProfilSiswaActivity" />   <!-- huruf besar S -->
+        <activity android:name=".AbsensiSiswaActivity" />
+        <activity android:name=".DataAnggotaActivity" />
 
     </application>
 

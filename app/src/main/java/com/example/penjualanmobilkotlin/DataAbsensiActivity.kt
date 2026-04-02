@@ -1,25 +1,27 @@
 package com.example.penjualanmobilkotlin
 
 import android.os.Bundle
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import java.text.SimpleDateFormat
-import java.util.*
+import org.json.JSONArray
+import org.json.JSONException
 
 class DataAbsensiActivity : AppCompatActivity() {
-
     private lateinit var listView: ListView
+    private lateinit var listData: ArrayList<String>
     private lateinit var adapter: ArrayAdapter<String>
-    private val listData = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_absensi_eskul)
+        setContentView(R.layout.activity_absensi_eskul) // sesuaikan layout
 
-        listView = findViewById(R.id.listAbsensi)
-
+        listView = findViewById(R.id.listAbsensi) // pastikan ID benar
+        listData = ArrayList()
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listData)
         listView.adapter = adapter
 
@@ -27,63 +29,47 @@ class DataAbsensiActivity : AppCompatActivity() {
     }
 
     private fun loadEskulSaya() {
-
         val session = SessionManager(this)
-        val idUser = session.getIdUser()
-
-        if (idUser == null) {
-            Toast.makeText(this, "User belum login", Toast.LENGTH_SHORT).show()
+        val userId = session.getUserId()
+        if (userId.isEmpty()) {
+            Toast.makeText(this, "Belum login", Toast.LENGTH_SHORT).show()
             return
         }
 
         val url = "http://192.168.0.15/manajemeneskul/absensi_data.php"
-
         val request = object : StringRequest(
             Method.POST, url,
-            { response ->
-
-                val jsonArray = org.json.JSONArray(response)
-                listData.clear()
-
-                if (jsonArray.length() == 0) {
-                    listData.add("Kamu belum mendaftar eskul")
-                } else {
-                    for (i in 0 until jsonArray.length()) {
-                        val obj = jsonArray.getJSONObject(i)
-                        val nama = obj.getString("nama_eskul")
-
-                        listData.add("$nama (Klik untuk absen)")
-                    }
+            Response.Listener { response ->
+                val clean = JsonUtils.cleanResponse(response)
+                if (!clean.startsWith("[")) {
+                    Toast.makeText(this, "Error: $clean", Toast.LENGTH_LONG).show()
+                    return@Listener
                 }
-
-                adapter.notifyDataSetChanged()
+                try {
+                    val jsonArray = JSONArray(clean)
+                    listData.clear()
+                    if (jsonArray.length() == 0) {
+                        listData.add("Kamu belum mendaftar eskul")
+                    } else {
+                        for (i in 0 until jsonArray.length()) {
+                            val obj = jsonArray.getJSONObject(i)
+                            val nama = obj.optString("nama_eskul", "Unknown")
+                            listData.add("$nama (Klik untuk absen)")
+                        }
+                    }
+                    adapter.notifyDataSetChanged()
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             },
-            {
-                Toast.makeText(this, "Gagal ambil data", Toast.LENGTH_SHORT).show()
-            }
-        ) {
-            override fun getParams(): MutableMap<String, String> {
-                return hashMapOf("id_user" to idUser)
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Gagal ambil data: ${error.message}", Toast.LENGTH_SHORT).show()
+            }) {
+            override fun getParams(): Map<String, String> {
+                return mapOf("id_user" to userId)
             }
         }
-
         Volley.newRequestQueue(this).add(request)
-    }
-
-    private fun absen(position: Int) {
-
-        val eskul = EskulData.eskulDipilih[position]
-
-        val tanggal = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-
-        AbsensiData.listAbsensi.add(
-            Absensi(
-                eskul.namaEskul,
-                tanggal,
-                "Hadir"
-            )
-        )
-
-        Toast.makeText(this, "Absen ${eskul.namaEskul} berhasil", Toast.LENGTH_SHORT).show()
     }
 }
