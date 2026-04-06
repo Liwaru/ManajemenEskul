@@ -1,57 +1,55 @@
-package com.example.penjualanmobilkotlin.adapter
+package com.example.penjualanmobilkotlin
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import com.example.penjualanmobilkotlin.Eskul
-import com.example.penjualanmobilkotlin.R
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 
 class EskulAdapter(
-    private val eskulList: List<Eskul>,
-    private val sessionIdPembina: Int,
-    private val onEditClick: (Eskul) -> Unit
-) : RecyclerView.Adapter<EskulAdapter.EskulViewHolder>() {
+    context: Context,
+    private val dataList: ArrayList<Eskul>
+) : ArrayAdapter<Eskul>(context, 0, dataList) {
 
-    inner class EskulViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imgEskul: ImageView = itemView.findViewById(R.id.imgEskul)
-        val tvNamaEskul: TextView = itemView.findViewById(R.id.tvNamaEskul)
-        val tvNamaPembina: TextView = itemView.findViewById(R.id.tvNamaPembina)
-        val tvJamMulai: TextView = itemView.findViewById(R.id.tvJamMulai)
-        val tvJamSelesai: TextView = itemView.findViewById(R.id.tvJamSelesai)
-        val btnEdit: Button = itemView.findViewById(R.id.btnEdit)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EskulViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_eskul, parent, false)
-        return EskulViewHolder(view)
-    }
-
-    override fun getItemCount(): Int = eskulList.size
-
-    override fun onBindViewHolder(holder: EskulViewHolder, position: Int) {
-        val eskul = eskulList[position]
-
-        holder.tvNamaEskul.text = eskul.namaEskul
-        holder.tvNamaPembina.text = "Pembina: ${eskul.namaPembina}"
-        holder.tvJamMulai.text = "Jam Mulai: ${eskul.jamMulai}"
-        holder.tvJamSelesai.text = "Jam Selesai: ${eskul.jamSelesai}"
-
-        // Ganti Glide dengan Coil
-        holder.imgEskul.load(eskul.gambar) {
-            placeholder(R.drawable.ic_default_eskul)
-            error(R.drawable.ic_default_eskul)
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        var itemView = convertView
+        if (itemView == null) {
+            itemView = LayoutInflater.from(context).inflate(R.layout.item_eskul, parent, false)
         }
 
-        if (eskul.idPembina == sessionIdPembina) {
-            holder.btnEdit.visibility = View.VISIBLE
-            holder.btnEdit.setOnClickListener {
-                onEditClick(eskul)
-            }
-        } else {
-            holder.btnEdit.visibility = View.GONE
+        val current = dataList[position]
+
+        val tvNamaPembina = itemView!!.findViewById<TextView>(R.id.tvNamaPembina)
+        val tvJamMulai = itemView.findViewById<TextView>(R.id.tvJamMulai)
+        val tvJamSelesai = itemView.findViewById<TextView>(R.id.tvJamSelesai)
+        val imgEskul = itemView.findViewById<ImageView>(R.id.imgEskul)
+        val btnEdit = itemView.findViewById<Button>(R.id.btnEdit)
+
+        tvNamaPembina.text = "Pembina: ${current.nama_pembina}"
+        tvJamMulai.text = "Jam Mulai: ${current.jam_mulai}"
+        tvJamSelesai.text = "Jam Selesai: ${current.jam_selesai}"
+
+        // Pilih gambar berdasarkan id_eskul (1-6)
+        val drawableId = when (current.id_eskul) {
+            1 -> R.drawable.futsal
+            2 -> R.drawable.basket
+            3 -> R.drawable.voli
+            4 -> R.drawable.badminton
+            5 -> R.drawable.musik
+            6 -> R.drawable.catur
+            else -> R.drawable.ic_default_eskul
         }
+        imgEskul.setImageResource(drawableId)
+
+        btnEdit.setOnClickListener {
+            Toast.makeText(context, "Edit eskul: ${current.nama_eskul}", Toast.LENGTH_SHORT).show()
+            // Nanti arahkan ke EditActivity dengan membawa id_eskul
+        }
+
+        return itemView
     }
 }

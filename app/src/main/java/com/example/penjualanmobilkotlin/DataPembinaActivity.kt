@@ -1,7 +1,8 @@
 package com.example.penjualanmobilkotlin
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,35 +15,69 @@ import org.json.JSONException
 class DataPembinaActivity : AppCompatActivity() {
 
     private lateinit var listView: ListView
-    private lateinit var listData: ArrayList<String>
-    private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var eskulList: ArrayList<Eskul>
+    private lateinit var adapter: EskulAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_pembina)
 
         listView = findViewById(R.id.listPembina)
-        listData = ArrayList()
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listData)
+        eskulList = ArrayList()
+        adapter = EskulAdapter(this, eskulList)
         listView.adapter = adapter
 
-        loadDataPembina()
+        // Di DataPembinaActivity
+        val btnTambahEskul = findViewById<Button>(R.id.btnTambahEskul)
+        btnTambahEskul.setOnClickListener {
+            startActivity(Intent(this, TambahEskulActivity::class.java))
+        }
+
+        val fabTambah = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabTambah)
+        fabTambah.setOnClickListener {
+            startActivity(Intent(this, TambahEskulActivity::class.java))
+        }
+
+        loadEskulData()
     }
 
-    private fun loadDataPembina() {
-        val url = "http://10.0.2.2/manajemeneskul/get_pembina.php" // ganti IP sesuai
+    private fun loadEskulData() {
+        val url = "http://192.168.0.15/manajemeneskul/get_eskul.php"
+
         val request = object : StringRequest(
-            Method.GET, url,  // Gunakan GET dulu untuk testing
+            Method.GET, url,
             Response.Listener { response ->
-                android.util.Log.d("RAW_RESPONSE", response)
-                Toast.makeText(this, "Response: $response", Toast.LENGTH_LONG).show()
-                // ... proses JSON nanti jika sukses
+                try {
+                    val jsonArray = JSONArray(response)
+                    eskulList.clear()
+                    for (i in 0 until jsonArray.length()) {
+                        val obj = jsonArray.getJSONObject(i)
+                        val eskul = Eskul(
+                            id_eskul = obj.getInt("id_eskul"),
+                            nama_eskul = obj.getString("nama_eskul"),
+                            nama_pembina = obj.getString("nama_pembina"),
+                            jam_mulai = obj.getString("jam_mulai"),
+                            jam_selesai = obj.getString("jam_selesai")
+                        )
+                        eskulList.add(eskul)
+                    }
+                    adapter.notifyDataSetChanged()
+                    if (eskulList.isEmpty()) {
+                        Toast.makeText(this, "Tidak ada data eskul", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Gagal parsing JSON: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             },
             Response.ErrorListener { error ->
-                android.util.Log.e("VOLLEY_ERROR", error.toString())
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
             }
         ) {}
         Volley.newRequestQueue(this).add(request)
+    }
+    override fun onResume() {
+        super.onResume()
+        loadEskulData()
     }
 }

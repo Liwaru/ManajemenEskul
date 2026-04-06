@@ -3,6 +3,7 @@
     package="com.example.penjualanmobilkotlin">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -35,6 +36,8 @@
         <activity android:name=".ProfilSiswaActivity" />   <!-- huruf besar S -->
         <activity android:name=".AbsensiSiswaActivity" />
         <activity android:name=".DataAnggotaActivity" />
+        <activity android:name=".TambahEskulActivity" />
+
 
     </application>
 
