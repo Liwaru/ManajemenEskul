@@ -1,75 +1,72 @@
 package com.example.penjualanmobilkotlin
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
+import android.view.View
+import android.widget.TextView
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import org.json.JSONArray
-import org.json.JSONException
 
 class EskulSayaActivity : AppCompatActivity() {
     private lateinit var listView: ListView
-    private lateinit var listData: ArrayList<String>
-    private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var txtKosong: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_eskul_saya)
 
         listView = findViewById(R.id.listEskulSaya)
-        listData = ArrayList()
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listData)
-        listView.adapter = adapter
+        txtKosong = findViewById(R.id.txtKosong)
 
-        loadEskulSaya()
+        loadEskulSayaDummy()
     }
 
-    private fun loadEskulSaya() {
-        val session = SessionManager(this)
-        val userId = session.getUserId()
-        if (userId.isEmpty()) {
-            Toast.makeText(this, "Belum login", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun loadEskulSayaDummy() {
+        // Data dummy: siswa ikut Badminton
+        val dummyJson = """
+            [
+                {
+                    "id_eskul": 4,
+                    "nama_eskul": "Badminton",
+                    "nama_pembina": "Dewi",
+                    "jam_mulai": "11:00:00",
+                    "jam_selesai": "11:45:00"
+                }
+            ]
+        """.trimIndent()
 
-        val url = "http://192.168.0.15/manajemeneskul/eskul_saya.php"
-        val request = object : StringRequest(
-            Method.POST, url,
-            Response.Listener { response ->
-                val clean = JsonUtils.cleanResponse(response)
-                if (!clean.startsWith("[")) {
-                    Toast.makeText(this, "Error: $clean", Toast.LENGTH_LONG).show()
-                    return@Listener
-                }
-                try {
-                    val jsonArray = JSONArray(clean)
-                    listData.clear()
-                    if (jsonArray.length() == 0) {
-                        listData.add("Belum mendaftar eskul apapun")
-                    } else {
-                        for (i in 0 until jsonArray.length()) {
-                            val obj = jsonArray.getJSONObject(i)
-                            val nama = obj.optString("nama_eskul", "Eskul")
-                            listData.add(nama)
-                        }
-                    }
-                    adapter.notifyDataSetChanged()
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            },
-            Response.ErrorListener { error ->
-                Toast.makeText(this, "Gagal ambil data: ${error.message}", Toast.LENGTH_SHORT).show()
-            }) {
-            override fun getParams(): Map<String, String> {
-                return mapOf("id_user" to userId)
+        try {
+            val jsonArray = JSONArray(dummyJson)
+            val eskulList = ArrayList<Eskul>()
+
+            for (i in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(i)
+                eskulList.add(
+                    Eskul(
+                        id_eskul = obj.getInt("id_eskul"),
+                        nama_eskul = obj.getString("nama_eskul"),
+                        nama_pembina = obj.getString("nama_pembina"),
+                        jam_mulai = obj.getString("jam_mulai"),
+                        jam_selesai = obj.getString("jam_selesai")
+                    )
+                )
             }
+
+            if (eskulList.isEmpty()) {
+                txtKosong.visibility = View.VISIBLE
+                listView.visibility = View.GONE
+            } else {
+                txtKosong.visibility = View.GONE
+                listView.visibility = View.VISIBLE
+
+                // Pakai EskulAdapter tanpa tombol edit (mode view only)
+                val adapter = EskulSayaAdapter(this, eskulList)
+                listView.adapter = adapter
+            }
+
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
         }
-        Volley.newRequestQueue(this).add(request)
     }
 }

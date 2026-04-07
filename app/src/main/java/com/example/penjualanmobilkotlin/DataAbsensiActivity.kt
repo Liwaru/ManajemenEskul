@@ -29,47 +29,19 @@ class DataAbsensiActivity : AppCompatActivity() {
     }
 
     private fun loadEskulSaya() {
-        val session = SessionManager(this)
-        val userId = session.getUserId()
-        if (userId.isEmpty()) {
-            Toast.makeText(this, "Belum login", Toast.LENGTH_SHORT).show()
-            return
+        listData.clear()
+
+        val format = java.text.SimpleDateFormat("yyyy-MM-dd")
+
+        for (i in 0..4) {
+            val calendar = java.util.Calendar.getInstance()
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, -i)
+
+            val tanggal = format.format(calendar.time)
+
+            listData.add("Tanggal: $tanggal - Hadir")
         }
 
-        val url = "http://192.168.0.15/manajemeneskul/absensi_data.php"
-        val request = object : StringRequest(
-            Method.POST, url,
-            Response.Listener { response ->
-                val clean = JsonUtils.cleanResponse(response)
-                if (!clean.startsWith("[")) {
-                    Toast.makeText(this, "Error: $clean", Toast.LENGTH_LONG).show()
-                    return@Listener
-                }
-                try {
-                    val jsonArray = JSONArray(clean)
-                    listData.clear()
-                    if (jsonArray.length() == 0) {
-                        listData.add("Kamu belum mendaftar eskul")
-                    } else {
-                        for (i in 0 until jsonArray.length()) {
-                            val obj = jsonArray.getJSONObject(i)
-                            val nama = obj.optString("nama_eskul", "Unknown")
-                            listData.add("$nama (Klik untuk absen)")
-                        }
-                    }
-                    adapter.notifyDataSetChanged()
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            },
-            Response.ErrorListener { error ->
-                Toast.makeText(this, "Gagal ambil data: ${error.message}", Toast.LENGTH_SHORT).show()
-            }) {
-            override fun getParams(): Map<String, String> {
-                return mapOf("id_user" to userId)
-            }
-        }
-        Volley.newRequestQueue(this).add(request)
+        adapter.notifyDataSetChanged()
     }
 }

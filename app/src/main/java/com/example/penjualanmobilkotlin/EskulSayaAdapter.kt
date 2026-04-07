@@ -5,19 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 
-class DaftarEskulAdapter(
+class EskulSayaAdapter(
     context: Context,
-    private val dataList: ArrayList<Eskul>,
-    private val onDaftarClick: (Eskul) -> Unit
+    private val dataList: ArrayList<Eskul>
 ) : ArrayAdapter<Eskul>(context, 0, dataList) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val itemView = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.item_daftar_eskul, parent, false)
+            .inflate(R.layout.item_eskul_saya, parent, false)
 
         val current = dataList[position]
 
@@ -36,10 +34,6 @@ class DaftarEskulAdapter(
             else -> R.drawable.ic_default_eskul
         }
         itemView.findViewById<ImageView>(R.id.imgEskul).setImageResource(drawableId)
-
-        itemView.findViewById<Button>(R.id.btnDaftar).setOnClickListener {
-            onDaftarClick(current)
-        }
 
         return itemView
     }
