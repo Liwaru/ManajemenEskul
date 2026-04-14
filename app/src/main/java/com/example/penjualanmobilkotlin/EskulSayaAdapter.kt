@@ -35,7 +35,7 @@ class EskulSayaAdapter(
             6 -> R.drawable.catur
             else -> R.drawable.ic_default_eskul
         }
-        itemView.findViewById<ImageView>(R.id.imgEskul).setImageResource(drawableId)
+        EskulImageLoader.load(itemView.findViewById(R.id.imgEskul), current.gambar, drawableId)
 
         return itemView
     }

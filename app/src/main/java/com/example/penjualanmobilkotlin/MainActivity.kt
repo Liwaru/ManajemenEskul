@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var edituser: EditText
     private lateinit var editpass: EditText
     private lateinit var tombolsimpan: Button
-    private val URL_LOGIN = "http://192.168.0.15/manajemeneskul/login.php"
+    private val URL_LOGIN = ApiConfig.LOGIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

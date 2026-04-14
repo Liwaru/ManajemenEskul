@@ -9,9 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import org.json.JSONArray
 import org.json.JSONException
-import org.json.JSONObject
 
 class ListPendaftaranActivity : AppCompatActivity() {
 
@@ -43,7 +41,7 @@ class ListPendaftaranActivity : AppCompatActivity() {
             listView.visibility = View.GONE
             return
         }
-        val url = "http://192.168.0.15/manajemeneskul/get_pendaftaran.php"
+        val url = ApiConfig.GET_PENDAFTARAN
 
         val request = object : StringRequest(
             Method.POST, url,
@@ -71,11 +69,7 @@ class ListPendaftaranActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_eskul", idEskul.toString())
-                    put("eskul_id", idEskul.toString())
-                    put("status", "menunggu")
-                }
+                return hashMapOf("id_eskul" to idEskul.toString())
             }
         }
 
@@ -88,22 +82,12 @@ class ListPendaftaranActivity : AppCompatActivity() {
             return
         }
 
-        val session = SessionManager(this)
-        val idEskul = session.getEskulId()
-        val url = "http://192.168.0.15/manajemeneskul/update_status_pendaftaran.php"
+        val url = ApiConfig.UPDATE_STATUS_PENDAFTARAN
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
                 val clean = JsonUtils.cleanResponse(response)
-                val isSuccess = if (clean.startsWith("{")) {
-                    val json = JSONObject(clean)
-                    json.optBoolean("success", false) ||
-                        json.optString("status").equals("success", ignoreCase = true) ||
-                        json.optString("status").equals("sukses", ignoreCase = true)
-                } else {
-                    val lower = clean.lowercase()
-                    lower.contains("success") || lower.contains("berhasil") || lower.contains("sukses")
-                }
+                val isSuccess = JsonUtils.isSuccessResponse(clean)
 
                 if (isSuccess) {
                     Toast.makeText(this, "Status ${item.namaSiswa} menjadi $status", Toast.LENGTH_SHORT).show()
@@ -121,15 +105,10 @@ class ListPendaftaranActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_pendaftaran", item.id.toString())
-                    put("id", item.id.toString())
-                    put("id_eskul", idEskul.toString())
-                    put("eskul_id", idEskul.toString())
-                    put("status", status)
-                    put("alasan", alasan)
-                    put("alasan_tolak", alasan)
-                }
+                return hashMapOf(
+                    "id_pendaftaran" to item.id.toString(),
+                    "status" to status
+                )
             }
         }
 
@@ -138,30 +117,21 @@ class ListPendaftaranActivity : AppCompatActivity() {
 
     private fun parsePendaftaran(response: String): ArrayList<Pendaftaran> {
         val result = ArrayList<Pendaftaran>()
-        val jsonArray = when {
-            response.startsWith("[") -> JSONArray(response)
-            response.startsWith("{") -> {
-                val jsonObject = JSONObject(response)
-                when {
-                    jsonObject.has("data") -> jsonObject.getJSONArray("data")
-                    jsonObject.has("pendaftaran") -> jsonObject.getJSONArray("pendaftaran")
-                    else -> JSONArray()
-                }
-            }
-            else -> JSONArray()
-        }
+        val jsonArray = JsonUtils.extractArray(response, "data", "pendaftaran", "result")
 
         for (i in 0 until jsonArray.length()) {
             val obj = jsonArray.getJSONObject(i)
             result.add(
                 Pendaftaran(
                     id = obj.optInt("id_pendaftaran", obj.optInt("id", 0)),
-                    namaSiswa = obj.optString("nama_siswa")
+                    namaSiswa = obj.optString("nama")
+                        .ifBlank { obj.optString("nama_siswa") }
+                        .ifBlank { obj.optString("nama_lengkap") }
                         .ifBlank { obj.optString("nama_user") }
                         .ifBlank { obj.optString("username") }
-                        .ifBlank { obj.optString("nama") }
                         .ifBlank { "Tanpa nama" },
-                    namaEskul = obj.optString("nama_eskul"),
+                    namaEskul = obj.optString("nama_eskul")
+                        .ifBlank { obj.optString("eskul") },
                     status = obj.optString("status"),
                     alasan = obj.optString("alasan")
                         .ifBlank { obj.optString("alasan_tolak") }

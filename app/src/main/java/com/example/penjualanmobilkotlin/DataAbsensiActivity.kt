@@ -49,7 +49,7 @@ class DataAbsensiActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.0.15/manajemeneskul/get_absensi_saya.php"
+        val url = ApiConfig.GET_ABSENSI
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
@@ -75,11 +75,7 @@ class DataAbsensiActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_user", userId)
-                    put("id_siswa", userId)
-                    put("user_id", userId)
-                }
+                return hashMapOf("id_user" to userId)
             }
         }
 
@@ -89,7 +85,7 @@ class DataAbsensiActivity : AppCompatActivity() {
     private fun simpanAbsensi() {
         val session = SessionManager(this)
         val userId = session.getUserId()
-        val idEskul = session.getEskulId().takeIf { it != 0 } ?: session.getLastEskulId()
+        val idEskul = session.getLastEskulId().takeIf { it != 0 } ?: session.getEskulId()
         if (userId.isBlank()) {
             Toast.makeText(this, "Belum login", Toast.LENGTH_SHORT).show()
             return
@@ -100,7 +96,7 @@ class DataAbsensiActivity : AppCompatActivity() {
         }
 
         val tanggalAbsensi = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-        val url = "http://192.168.0.15/manajemeneskul/tambah_absensi.php"
+        val url = ApiConfig.ABSEN
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
@@ -131,11 +127,11 @@ class DataAbsensiActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_siswa", userId)
-                    put("id_eskul", idEskul.toString())
-                    put("tanggal_absensi", tanggalAbsensi)
-                }
+                return hashMapOf(
+                    "id_user" to userId,
+                    "id_eskul" to idEskul.toString(),
+                    "tanggal_absensi" to tanggalAbsensi
+                )
             }
         }
 

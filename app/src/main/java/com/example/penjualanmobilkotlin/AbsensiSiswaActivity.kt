@@ -41,10 +41,9 @@ class AbsensiSiswaActivity : AppCompatActivity() {
             listView.visibility = View.GONE
             return
         }
-        val url = "http://192.168.0.15/manajemeneskul/get_absensi_siswa.php"
 
         val request = object : StringRequest(
-            Method.POST, url,
+            Method.POST, ApiConfig.GET_ABSENSI_SISWA,
             Response.Listener { response ->
                 val clean = JsonUtils.cleanResponse(response)
                 try {
@@ -54,6 +53,7 @@ class AbsensiSiswaActivity : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
 
                     if (listData.isEmpty()) {
+                        txtKosong.text = "Belum ada data absensi siswa"
                         txtKosong.visibility = View.VISIBLE
                         listView.visibility = View.GONE
                     } else {
@@ -61,18 +61,21 @@ class AbsensiSiswaActivity : AppCompatActivity() {
                         listView.visibility = View.VISIBLE
                     }
                 } catch (e: JSONException) {
+                    txtKosong.text = "Gagal parsing data absensi"
+                    txtKosong.visibility = View.VISIBLE
+                    listView.visibility = View.GONE
                     Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             },
             Response.ErrorListener { error ->
+                txtKosong.text = "Koneksi gagal ke data absensi siswa"
+                txtKosong.visibility = View.VISIBLE
+                listView.visibility = View.GONE
                 Toast.makeText(this, "Koneksi gagal: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_eskul", idEskul.toString())
-                    put("eskul_id", idEskul.toString())
-                }
+                return hashMapOf("id_eskul" to idEskul.toString())
             }
         }
 

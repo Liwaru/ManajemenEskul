@@ -12,7 +12,8 @@ import android.widget.TextView
 class EskulAdapter(
     context: Context,
     private val dataList: ArrayList<Eskul>,
-    private val onEditClick: (Eskul) -> Unit
+    private val onEditClick: (Eskul) -> Unit,
+    private val onDeleteClick: (Eskul) -> Unit
 ) : ArrayAdapter<Eskul>(context, 0, dataList) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -29,6 +30,7 @@ class EskulAdapter(
         val tvJamSelesai = itemView.findViewById<TextView>(R.id.tvJamSelesai)
         val imgEskul = itemView.findViewById<ImageView>(R.id.imgEskul)
         val btnEdit = itemView.findViewById<Button>(R.id.btnEdit)
+        val btnHapus = itemView.findViewById<Button>(R.id.btnHapus)
 
         tvNamaEskul.text = current.nama_eskul
         tvNamaPembina.text = "Pembina: ${current.nama_pembina}"
@@ -45,10 +47,14 @@ class EskulAdapter(
             6 -> R.drawable.catur
             else -> R.drawable.ic_default_eskul
         }
-        imgEskul.setImageResource(drawableId)
+        EskulImageLoader.load(imgEskul, current.gambar, drawableId)
 
         btnEdit.setOnClickListener {
             onEditClick(current)
+        }
+
+        btnHapus.setOnClickListener {
+            onDeleteClick(current)
         }
 
         return itemView

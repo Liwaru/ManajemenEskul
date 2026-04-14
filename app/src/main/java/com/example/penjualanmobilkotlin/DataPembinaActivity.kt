@@ -1,5 +1,6 @@
 package com.example.penjualanmobilkotlin
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -11,6 +12,7 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 
 class DataPembinaActivity : AppCompatActivity() {
 
@@ -24,18 +26,26 @@ class DataPembinaActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.listPembina)
         eskulList = ArrayList()
-        adapter = EskulAdapter(this, eskulList) { eskul ->
-            val intent = Intent(this, TambahEskulActivity::class.java).apply {
-                putExtra("mode", "edit")
-                putExtra("id_eskul", eskul.id_eskul)
-                putExtra("nama_eskul", eskul.nama_eskul)
-                putExtra("nama_pembina", eskul.nama_pembina)
-                putExtra("deskripsi", eskul.deskripsi)
-                putExtra("jam_mulai", eskul.jam_mulai)
-                putExtra("jam_selesai", eskul.jam_selesai)
+        adapter = EskulAdapter(
+            this,
+            eskulList,
+            onEditClick = { eskul ->
+                val intent = Intent(this, TambahEskulActivity::class.java).apply {
+                    putExtra("mode", "edit")
+                    putExtra("id_eskul", eskul.id_eskul)
+                    putExtra("nama_eskul", eskul.nama_eskul)
+                    putExtra("nama_pembina", eskul.nama_pembina)
+                    putExtra("deskripsi", eskul.deskripsi)
+                    putExtra("jam_mulai", eskul.jam_mulai)
+                    putExtra("jam_selesai", eskul.jam_selesai)
+                    putExtra("gambar", eskul.gambar)
+                }
+                startActivity(intent)
+            },
+            onDeleteClick = { eskul ->
+                confirmDeleteEskul(eskul)
             }
-            startActivity(intent)
-        }
+        )
         listView.adapter = adapter
 
         // Di DataPembinaActivity
@@ -53,7 +63,7 @@ class DataPembinaActivity : AppCompatActivity() {
     }
 
     private fun loadEskulData() {
-        val url = "http://192.168.0.15/manajemeneskul/get_eskul.php"
+        val url = ApiConfig.GET_ALL_ESKUL
 
         val request = object : StringRequest(
             Method.GET, url,
@@ -69,7 +79,10 @@ class DataPembinaActivity : AppCompatActivity() {
                             nama_pembina = obj.getString("nama_pembina"),
                             deskripsi = obj.optString("deskripsi", ""),
                             jam_mulai = obj.getString("jam_mulai"),
-                            jam_selesai = obj.getString("jam_selesai")
+                            jam_selesai = obj.getString("jam_selesai"),
+                            gambar = obj.optString("gambar")
+                                .ifBlank { obj.optString("foto") }
+                                .ifBlank { obj.optString("image") }
                         )
                         eskulList.add(eskul)
                     }
@@ -88,6 +101,58 @@ class DataPembinaActivity : AppCompatActivity() {
         ) {}
         Volley.newRequestQueue(this).add(request)
     }
+
+    private fun confirmDeleteEskul(eskul: Eskul) {
+        AlertDialog.Builder(this)
+            .setTitle("Hapus Eskul")
+            .setMessage("Hapus eskul ${eskul.nama_eskul}?")
+            .setNegativeButton("Batal", null)
+            .setPositiveButton("Hapus") { _, _ ->
+                hapusEskul(eskul)
+            }
+            .show()
+    }
+
+    private fun hapusEskul(eskul: Eskul) {
+        val url = ApiConfig.DELETE_ESKUL
+        val request = object : StringRequest(
+            Method.POST, url,
+            Response.Listener { response ->
+                val clean = JsonUtils.cleanResponse(response)
+                if (JsonUtils.isSuccessResponse(clean)) {
+                    Toast.makeText(this, "Eskul berhasil dihapus", Toast.LENGTH_SHORT).show()
+                    loadEskulData()
+                } else {
+                    val message = if (clean.startsWith("{")) {
+                        try {
+                            JSONObject(clean).optString("message")
+                        } catch (_: Exception) {
+                            clean
+                        }
+                    } else {
+                        clean
+                    }
+                    Toast.makeText(
+                        this,
+                        if (message.isBlank()) "Gagal menghapus eskul" else message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        ) {
+            override fun getParams(): Map<String, String> {
+                return hashMapOf<String, String>().apply {
+                    put("id_eskul", eskul.id_eskul.toString())
+                    put("id", eskul.id_eskul.toString())
+                }
+            }
+        }
+        Volley.newRequestQueue(this).add(request)
+    }
+
     override fun onResume() {
         super.onResume()
         loadEskulData()

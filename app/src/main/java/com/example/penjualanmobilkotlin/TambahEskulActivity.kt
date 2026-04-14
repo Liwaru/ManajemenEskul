@@ -80,7 +80,11 @@ class TambahEskulActivity : AppCompatActivity() {
             etDeskripsi.setText(intent.getStringExtra("deskripsi").orEmpty())
             etJamMulai.setText(intent.getStringExtra("jam_mulai").orEmpty())
             etJamSelesai.setText(intent.getStringExtra("jam_selesai").orEmpty())
-            imgPreview.setImageResource(getEskulDrawable(idEskul))
+            EskulImageLoader.load(
+                imgPreview,
+                intent.getStringExtra("gambar").orEmpty(),
+                getEskulDrawable(idEskul)
+            )
         } else {
             tvJudulEskul.text = "Tambah Eskul"
             btnSimpan.text = "Tambah"
@@ -129,7 +133,7 @@ class TambahEskulActivity : AppCompatActivity() {
     }
 
     private fun simpanEskul() {
-        val url = "http://192.168.0.15/manajemeneskul/tambah_eskul.php"
+        val url = ApiConfig.TAMBAH_ESKUL
 
         val request = object : StringRequest(
             Request.Method.POST, url,
@@ -148,7 +152,7 @@ class TambahEskulActivity : AppCompatActivity() {
     }
 
     private fun updateEskul() {
-        val url = "http://192.168.0.15/manajemeneskul/update_eskul.php"
+        val url = ApiConfig.UPDATE_ESKUL
 
         val request = object : StringRequest(
             Request.Method.POST, url,

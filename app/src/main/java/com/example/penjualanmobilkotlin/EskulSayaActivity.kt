@@ -35,7 +35,7 @@ class EskulSayaActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.0.15/manajemeneskul/get_eskul_saya.php"
+        val url = ApiConfig.ESKUL_SAYA
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
@@ -58,12 +58,7 @@ class EskulSayaActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_user", userId)
-                    put("id_siswa", userId)
-                    put("user_id", userId)
-                    put("status", "diterima")
-                }
+                return hashMapOf("id_user" to userId)
             }
         }
 
@@ -108,7 +103,10 @@ class EskulSayaActivity : AppCompatActivity() {
                         .ifBlank { "-" },
                     jam_selesai = obj.optString("jam_selesai")
                         .ifBlank { obj.optString("selesai") }
-                        .ifBlank { "-" }
+                        .ifBlank { "-" },
+                    gambar = obj.optString("gambar")
+                        .ifBlank { obj.optString("foto") }
+                        .ifBlank { obj.optString("image") }
                 )
             )
         }

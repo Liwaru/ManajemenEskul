@@ -25,7 +25,8 @@ class DaftarEskulActivity : AppCompatActivity() {
     }
 
     private fun loadDaftarEskul() {
-        val url = "http://192.168.0.15/manajemeneskul/get_eskul.php"
+        val url = ApiConfig.GET_ALL_ESKUL
+
 
         val request = object : StringRequest(
             Method.GET, url,
@@ -46,7 +47,10 @@ class DaftarEskulActivity : AppCompatActivity() {
                                 nama_pembina = obj.optString("nama_pembina", "-"),
                                 deskripsi = obj.optString("deskripsi", ""),
                                 jam_mulai = obj.optString("jam_mulai", "-"),
-                                jam_selesai = obj.optString("jam_selesai", "-")
+                                jam_selesai = obj.optString("jam_selesai", "-"),
+                                gambar = obj.optString("gambar")
+                                    .ifBlank { obj.optString("foto") }
+                                    .ifBlank { obj.optString("image") }
                             )
                         )
                     }
@@ -76,43 +80,27 @@ class DaftarEskulActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.0.15/manajemeneskul/daftar_eskul.php"
+        val url = ApiConfig.DAFTAR_ESKUL
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
                 val clean = JsonUtils.cleanResponse(response)
                 try {
-                    if (!clean.startsWith("{")) {
-                        val lower = clean.lowercase()
-                        val isSuccess = lower.contains("success") ||
-                            lower.contains("berhasil") ||
-                            lower.contains("sukses")
-                        Toast.makeText(
-                            this,
-                            if (clean.isBlank()) "Pendaftaran berhasil" else clean,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        if (isSuccess) {
-                            openBeranda()
+                    val isSuccess = JsonUtils.isSuccessResponse(clean)
+                    val message = if (clean.startsWith("{")) {
+                        JSONObject(clean).optString("message").ifBlank {
+                            JSONObject(clean).optString("pesan")
                         }
-                        return@Listener
-                    }
-
-                    val json = JSONObject(clean)
-                    val isSuccess = json.optBoolean("success", false) ||
-                        json.optString("status", "").equals("success", ignoreCase = true) ||
-                        json.optString("status", "").equals("sukses", ignoreCase = true)
-                    val message = json.optString("message").ifBlank {
+                    } else {
+                        clean
+                    }.ifBlank {
                         if (isSuccess) "Pendaftaran berhasil" else "Pendaftaran gagal"
                     }
 
                     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     if (isSuccess) {
                         session.saveLastEskulId(idEskul)
-                        val intent = Intent(this, BerandaSActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(intent)
-                        finish()
+                        openBeranda()
                     }
                 } catch (e: JSONException) {
                     Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
@@ -122,15 +110,10 @@ class DaftarEskulActivity : AppCompatActivity() {
                 Toast.makeText(this, "Koneksi gagal: ${error.message}", Toast.LENGTH_SHORT).show()
             }) {
             override fun getParams(): Map<String, String> {
-                val idEskulString = idEskul.toString()
-                return hashMapOf<String, String>().apply {
-                    put("id_user", idUser)
-                    put("id_siswa", idUser)
-                    put("user_id", idUser)
-                    put("id_eskul", idEskulString)
-                    put("eskul_id", idEskulString)
-                    put("status", "menunggu")
-                }
+                return hashMapOf(
+                    "id_user" to idUser,
+                    "id_eskul" to idEskul.toString()
+                )
             }
         }
         Volley.newRequestQueue(this).add(request)

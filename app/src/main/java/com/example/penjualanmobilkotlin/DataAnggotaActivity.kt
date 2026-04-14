@@ -36,7 +36,7 @@ class DataAnggotaActivity : AppCompatActivity() {
             Toast.makeText(this, "Session id_eskul pembina belum tersedia", Toast.LENGTH_SHORT).show()
             return
         }
-        val url = "http://192.168.0.15/manajemeneskul/get_anggota_eskul.php"
+        val url = ApiConfig.GET_ANGGOTA
 
         val request = object : StringRequest(
             Method.POST, url,
@@ -60,11 +60,7 @@ class DataAnggotaActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_eskul", idEskul.toString())
-                    put("eskul_id", idEskul.toString())
-                    put("status", "diterima")
-                }
+                return hashMapOf("id_eskul" to idEskul.toString())
             }
         }
 

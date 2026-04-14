@@ -43,7 +43,7 @@ class ProfilSiswaActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.0.15/manajemeneskul/Get_profile.php"
+        val url = ApiConfig.GET_PROFILE
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
@@ -78,10 +78,7 @@ class ProfilSiswaActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_user", userId)
-                    put("user_id", userId)
-                }
+                return hashMapOf("id_user" to userId)
             }
         }
         Volley.newRequestQueue(this).add(request)
@@ -102,7 +99,7 @@ class ProfilSiswaActivity : AppCompatActivity() {
             return
         }
 
-        val url = "http://192.168.0.15/manajemeneskul/update_profile_siswa.php"
+        val url = ApiConfig.UPDATE_PROFILE
         val request = object : StringRequest(
             Method.POST, url,
             Response.Listener { response ->
@@ -132,11 +129,10 @@ class ProfilSiswaActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf<String, String>().apply {
-                    put("id_user", userId)
-                    put("user_id", userId)
-                    put("password", passwordBaru)
-                }
+                return hashMapOf(
+                    "id_user" to userId,
+                    "password" to passwordBaru
+                )
             }
         }
 

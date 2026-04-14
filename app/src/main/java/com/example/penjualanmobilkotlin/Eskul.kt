@@ -6,5 +6,6 @@ data class Eskul(
     val nama_pembina: String,
     val deskripsi: String = "",
     val jam_mulai: String,
-    val jam_selesai: String
+    val jam_selesai: String,
+    val gambar: String = ""
 )
