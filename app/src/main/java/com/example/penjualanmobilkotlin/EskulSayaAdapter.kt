@@ -21,6 +21,8 @@ class EskulSayaAdapter(
 
         itemView.findViewById<TextView>(R.id.tvNamaEskul).text = current.nama_eskul
         itemView.findViewById<TextView>(R.id.tvNamaPembina).text = "Pembina: ${current.nama_pembina}"
+        itemView.findViewById<TextView>(R.id.tvDeskripsi).text =
+            if (current.deskripsi.isBlank()) "Deskripsi: -" else "Deskripsi: ${current.deskripsi}"
         itemView.findViewById<TextView>(R.id.tvJamMulai).text = "Jam Mulai: ${current.jam_mulai}"
         itemView.findViewById<TextView>(R.id.tvJamSelesai).text = "Jam Selesai: ${current.jam_selesai}"
 

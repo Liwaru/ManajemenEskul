@@ -1,37 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
     android:background="#EEEEEE"
-    android:layout_marginBottom="8dp">
+    android:orientation="vertical"
+    android:padding="12dp">
 
     <TextView
         android:id="@+id/txtNama"
-        android:text="Nama Siswa"
-        android:textSize="16sp"
-        android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="Nama Siswa"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edtAlasanTolak"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="Alasan penolakan"
+        android:inputType="textMultiLine"
+        android:minLines="2"
+        android:gravity="top|start" />
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnTerima"
-            android:text="Terima"
-            android:layout_marginEnd="8dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Terima" />
 
         <Button
             android:id="@+id/btnTolak"
-            android:text="Tolak"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Tolak" />
     </LinearLayout>
 
 </LinearLayout>

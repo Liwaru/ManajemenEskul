@@ -1,7 +1,7 @@
 package com.example.penjualanmobilkotlin
 
 data class Absensi(
-    val namaEskul: String,
-    val tanggal: String,
-    val status: String
+    val idAbsensi: Int = 0,
+    val namaSiswa: String,
+    val tanggalAbsensi: String
 )

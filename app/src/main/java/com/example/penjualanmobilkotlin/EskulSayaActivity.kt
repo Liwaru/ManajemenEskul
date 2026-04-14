@@ -2,11 +2,16 @@ package com.example.penjualanmobilkotlin
 
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 class EskulSayaActivity : AppCompatActivity() {
     private lateinit var listView: ListView
@@ -19,54 +24,101 @@ class EskulSayaActivity : AppCompatActivity() {
         listView = findViewById(R.id.listEskulSaya)
         txtKosong = findViewById(R.id.txtKosong)
 
-        loadEskulSayaDummy()
+        loadEskulSaya()
     }
 
-    private fun loadEskulSayaDummy() {
-        // Data dummy: siswa ikut Badminton
-        val dummyJson = """
-            [
-                {
-                    "id_eskul": 4,
-                    "nama_eskul": "Badminton",
-                    "nama_pembina": "Dewi",
-                    "jam_mulai": "11:00:00",
-                    "jam_selesai": "11:45:00"
-                }
-            ]
-        """.trimIndent()
-
-        try {
-            val jsonArray = JSONArray(dummyJson)
-            val eskulList = ArrayList<Eskul>()
-
-            for (i in 0 until jsonArray.length()) {
-                val obj = jsonArray.getJSONObject(i)
-                eskulList.add(
-                    Eskul(
-                        id_eskul = obj.getInt("id_eskul"),
-                        nama_eskul = obj.getString("nama_eskul"),
-                        nama_pembina = obj.getString("nama_pembina"),
-                        jam_mulai = obj.getString("jam_mulai"),
-                        jam_selesai = obj.getString("jam_selesai")
-                    )
-                )
-            }
-
-            if (eskulList.isEmpty()) {
-                txtKosong.visibility = View.VISIBLE
-                listView.visibility = View.GONE
-            } else {
-                txtKosong.visibility = View.GONE
-                listView.visibility = View.VISIBLE
-
-                // Pakai EskulAdapter tanpa tombol edit (mode view only)
-                val adapter = EskulSayaAdapter(this, eskulList)
-                listView.adapter = adapter
-            }
-
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+    private fun loadEskulSaya() {
+        val session = SessionManager(this)
+        val userId = session.getUserId()
+        if (userId.isBlank()) {
+            showEmptyState("Belum login")
+            return
         }
+
+        val url = "http://192.168.0.15/manajemeneskul/get_eskul_saya.php"
+        val request = object : StringRequest(
+            Method.POST, url,
+            Response.Listener { response ->
+                val clean = JsonUtils.cleanResponse(response)
+                try {
+                    val eskulList = parseEskulSaya(clean)
+                    if (eskulList.isEmpty()) {
+                        showEmptyState("Kamu belum diterima di eskul mana pun")
+                    } else {
+                        txtKosong.visibility = View.GONE
+                        listView.visibility = View.VISIBLE
+                        listView.adapter = EskulSayaAdapter(this, eskulList)
+                    }
+                } catch (e: JSONException) {
+                    Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Gagal koneksi: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getParams(): Map<String, String> {
+                return hashMapOf<String, String>().apply {
+                    put("id_user", userId)
+                    put("id_siswa", userId)
+                    put("user_id", userId)
+                    put("status", "diterima")
+                }
+            }
+        }
+
+        Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun parseEskulSaya(response: String): ArrayList<Eskul> {
+        val result = ArrayList<Eskul>()
+        val jsonArray = when {
+            response.startsWith("[") -> JSONArray(response)
+            response.startsWith("{") -> {
+                val jsonObject = JSONObject(response)
+                when {
+                    jsonObject.has("data") -> jsonObject.getJSONArray("data")
+                    jsonObject.has("eskul") -> jsonObject.getJSONArray("eskul")
+                    jsonObject.has("pendaftaran") -> jsonObject.getJSONArray("pendaftaran")
+                    else -> JSONArray()
+                }
+            }
+            else -> JSONArray()
+        }
+
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            val status = obj.optString("status")
+            if (status.isNotBlank() && !status.equals("diterima", ignoreCase = true)) {
+                continue
+            }
+
+            result.add(
+                Eskul(
+                    id_eskul = obj.optInt("id_eskul", obj.optInt("eskul_id", 0)),
+                    nama_eskul = obj.optString("nama_eskul")
+                        .ifBlank { obj.optString("eskul") }
+                        .ifBlank { "-" },
+                    nama_pembina = obj.optString("nama_pembina")
+                        .ifBlank { obj.optString("pembina") }
+                        .ifBlank { "-" },
+                    deskripsi = obj.optString("deskripsi"),
+                    jam_mulai = obj.optString("jam_mulai")
+                        .ifBlank { obj.optString("mulai") }
+                        .ifBlank { "-" },
+                    jam_selesai = obj.optString("jam_selesai")
+                        .ifBlank { obj.optString("selesai") }
+                        .ifBlank { "-" }
+                )
+            )
+        }
+
+        return result
+    }
+
+    private fun showEmptyState(message: String) {
+        txtKosong.text = message
+        txtKosong.visibility = View.VISIBLE
+        listView.visibility = View.GONE
     }
 }

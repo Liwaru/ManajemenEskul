@@ -52,7 +52,8 @@ class MainActivity : AppCompatActivity() {
                     if (success) {
                         val level = json.optInt("level", 0)
                         val idUser = json.optString("id_user", "")
-                        SessionManager(this).saveSession(idUser)
+                        val idEskul = json.optInt("id_eskul", 0)
+                        SessionManager(this).saveSession(idUser, nama, idEskul)
 
                         when (level) {
                             1 -> startActivity(Intent(this, BerandaSActivity::class.java))

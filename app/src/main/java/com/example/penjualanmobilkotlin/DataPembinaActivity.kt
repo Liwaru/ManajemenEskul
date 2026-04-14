@@ -24,7 +24,18 @@ class DataPembinaActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.listPembina)
         eskulList = ArrayList()
-        adapter = EskulAdapter(this, eskulList)
+        adapter = EskulAdapter(this, eskulList) { eskul ->
+            val intent = Intent(this, TambahEskulActivity::class.java).apply {
+                putExtra("mode", "edit")
+                putExtra("id_eskul", eskul.id_eskul)
+                putExtra("nama_eskul", eskul.nama_eskul)
+                putExtra("nama_pembina", eskul.nama_pembina)
+                putExtra("deskripsi", eskul.deskripsi)
+                putExtra("jam_mulai", eskul.jam_mulai)
+                putExtra("jam_selesai", eskul.jam_selesai)
+            }
+            startActivity(intent)
+        }
         listView.adapter = adapter
 
         // Di DataPembinaActivity
@@ -48,7 +59,7 @@ class DataPembinaActivity : AppCompatActivity() {
             Method.GET, url,
             Response.Listener { response ->
                 try {
-                    val jsonArray = JSONArray(response)
+                    val jsonArray = JSONArray(JsonUtils.cleanResponse(response))
                     eskulList.clear()
                     for (i in 0 until jsonArray.length()) {
                         val obj = jsonArray.getJSONObject(i)
@@ -56,6 +67,7 @@ class DataPembinaActivity : AppCompatActivity() {
                             id_eskul = obj.getInt("id_eskul"),
                             nama_eskul = obj.getString("nama_eskul"),
                             nama_pembina = obj.getString("nama_pembina"),
+                            deskripsi = obj.optString("deskripsi", ""),
                             jam_mulai = obj.getString("jam_mulai"),
                             jam_selesai = obj.getString("jam_selesai")
                         )

@@ -1,8 +1,10 @@
 package com.example.penjualanmobilkotlin
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
+import android.view.View
+import android.widget.Button
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
@@ -10,38 +12,176 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class DataAbsensiActivity : AppCompatActivity() {
+    private lateinit var btnAbsensi: Button
+    private lateinit var txtKosong: TextView
     private lateinit var listView: ListView
-    private lateinit var listData: ArrayList<String>
-    private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var adapter: AbsensiAdapter
+    private val listData = ArrayList<Absensi>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_absensi_eskul) // sesuaikan layout
+        setContentView(R.layout.activity_absensi_eskul)
 
-        listView = findViewById(R.id.listAbsensi) // pastikan ID benar
-        listData = ArrayList()
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listData)
+        btnAbsensi = findViewById(R.id.btnAbsensiSaya)
+        txtKosong = findViewById(R.id.txtKosongAbsensi)
+        listView = findViewById(R.id.listAbsensi)
+        adapter = AbsensiAdapter(this, listData)
         listView.adapter = adapter
 
-        loadEskulSaya()
-    }
-
-    private fun loadEskulSaya() {
-        listData.clear()
-
-        val format = java.text.SimpleDateFormat("yyyy-MM-dd")
-
-        for (i in 0..4) {
-            val calendar = java.util.Calendar.getInstance()
-            calendar.add(java.util.Calendar.DAY_OF_MONTH, -i)
-
-            val tanggal = format.format(calendar.time)
-
-            listData.add("Tanggal: $tanggal - Hadir")
+        btnAbsensi.setOnClickListener {
+            simpanAbsensi()
         }
 
-        adapter.notifyDataSetChanged()
+        loadAbsensiSaya()
+    }
+
+    private fun loadAbsensiSaya() {
+        val session = SessionManager(this)
+        val userId = session.getUserId()
+        if (userId.isBlank()) {
+            showEmptyState("Belum login")
+            return
+        }
+
+        val url = "http://192.168.0.15/manajemeneskul/get_absensi_saya.php"
+        val request = object : StringRequest(
+            Method.POST, url,
+            Response.Listener { response ->
+                val clean = JsonUtils.cleanResponse(response)
+                try {
+                    val items = parseAbsensi(clean)
+                    listData.clear()
+                    listData.addAll(items)
+                    adapter.notifyDataSetChanged()
+
+                    if (listData.isEmpty()) {
+                        showEmptyState("Belum ada data absensi")
+                    } else {
+                        txtKosong.visibility = View.GONE
+                        listView.visibility = View.VISIBLE
+                    }
+                } catch (e: JSONException) {
+                    Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Koneksi gagal: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getParams(): Map<String, String> {
+                return hashMapOf<String, String>().apply {
+                    put("id_user", userId)
+                    put("id_siswa", userId)
+                    put("user_id", userId)
+                }
+            }
+        }
+
+        Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun simpanAbsensi() {
+        val session = SessionManager(this)
+        val userId = session.getUserId()
+        val idEskul = session.getEskulId().takeIf { it != 0 } ?: session.getLastEskulId()
+        if (userId.isBlank()) {
+            Toast.makeText(this, "Belum login", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (idEskul == 0) {
+            Toast.makeText(this, "ID eskul belum tersedia", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val tanggalAbsensi = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val url = "http://192.168.0.15/manajemeneskul/tambah_absensi.php"
+        val request = object : StringRequest(
+            Method.POST, url,
+            Response.Listener { response ->
+                val clean = JsonUtils.cleanResponse(response)
+                val isSuccess = if (clean.startsWith("{")) {
+                    val json = JSONObject(clean)
+                    json.optBoolean("success", false) ||
+                        json.optString("status").equals("success", ignoreCase = true) ||
+                        json.optString("status").equals("sukses", ignoreCase = true)
+                } else {
+                    val lower = clean.lowercase()
+                    lower.contains("success") || lower.contains("berhasil") || lower.contains("sukses")
+                }
+
+                if (isSuccess) {
+                    Toast.makeText(this, "Absensi berhasil disimpan", Toast.LENGTH_SHORT).show()
+                    loadAbsensiSaya()
+                } else {
+                    Toast.makeText(
+                        this,
+                        if (clean.isBlank()) "Gagal simpan absensi" else clean,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Koneksi gagal: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getParams(): Map<String, String> {
+                return hashMapOf<String, String>().apply {
+                    put("id_siswa", userId)
+                    put("id_eskul", idEskul.toString())
+                    put("tanggal_absensi", tanggalAbsensi)
+                }
+            }
+        }
+
+        Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun parseAbsensi(response: String): ArrayList<Absensi> {
+        val result = ArrayList<Absensi>()
+        val jsonArray = when {
+            response.startsWith("[") -> JSONArray(response)
+            response.startsWith("{") -> {
+                val jsonObject = JSONObject(response)
+                when {
+                    jsonObject.has("data") -> jsonObject.getJSONArray("data")
+                    jsonObject.has("absensi") -> jsonObject.getJSONArray("absensi")
+                    else -> JSONArray()
+                }
+            }
+            else -> JSONArray()
+        }
+
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            result.add(
+                Absensi(
+                    idAbsensi = obj.optInt("id_absensi", obj.optInt("id", 0)),
+                    namaSiswa = obj.optString("nama_siswa")
+                        .ifBlank { obj.optString("nama") }
+                        .ifBlank { sessionNameFallback() },
+                    tanggalAbsensi = obj.optString("tanggal_absensi")
+                        .ifBlank { obj.optString("tanggal") }
+                        .ifBlank { "-" }
+                )
+            )
+        }
+
+        return result
+    }
+
+    private fun sessionNameFallback(): String {
+        return SessionManager(this).getUsername().ifBlank { "Siswa" }
+    }
+
+    private fun showEmptyState(message: String) {
+        txtKosong.text = message
+        txtKosong.visibility = View.VISIBLE
+        listView.visibility = View.GONE
     }
 }
