@@ -31,15 +31,17 @@ class DataAnggotaActivity : AppCompatActivity() {
 
     private fun loadData() {
         val session = SessionManager(this)
-        val idEskul = session.getEskulId()
-        if (idEskul == 0) {
-            Toast.makeText(this, "Session id_eskul pembina belum tersedia", Toast.LENGTH_SHORT).show()
+        val params = buildPembinaParams(session)
+        if (params.isEmpty()) {
+            Toast.makeText(this, "Session id_pembina atau id_eskul belum tersedia", Toast.LENGTH_SHORT).show()
             return
         }
-        val url = ApiConfig.GET_ANGGOTA
+        fetchAnggota(params)
+    }
 
+    private fun fetchAnggota(params: Map<String, String>) {
         val request = object : StringRequest(
-            Method.POST, url,
+            Method.POST, ApiConfig.GET_ANGGOTA,
             Response.Listener { response ->
                 val clean = JsonUtils.cleanResponse(response)
                 try {
@@ -60,11 +62,25 @@ class DataAnggotaActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf("id_eskul" to idEskul.toString())
+                return params
             }
         }
 
         Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun buildPembinaParams(session: SessionManager): Map<String, String> {
+        val idEskul = session.getEskulId()
+        if (idEskul != 0) {
+            return hashMapOf("id_eskul" to idEskul.toString())
+        }
+
+        val idPembina = session.getPembinaId()
+        if (idPembina.isNotBlank()) {
+            return hashMapOf("id_pembina" to idPembina)
+        }
+
+        return emptyMap()
     }
 
     private fun parseAnggota(response: String): ArrayList<String> {

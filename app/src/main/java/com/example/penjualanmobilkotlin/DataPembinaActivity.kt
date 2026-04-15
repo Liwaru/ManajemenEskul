@@ -99,7 +99,10 @@ class DataPembinaActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
             }
         ) {}
-        Volley.newRequestQueue(this).add(request)
+        request.setShouldCache(false)
+        val queue = Volley.newRequestQueue(this)
+        queue.cache.clear()
+        queue.add(request)
     }
 
     private fun confirmDeleteEskul(eskul: Eskul) {

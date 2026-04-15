@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -27,16 +26,19 @@ class DaftarEskulActivity : AppCompatActivity() {
     private fun loadDaftarEskul() {
         val url = ApiConfig.GET_ALL_ESKUL
 
-
         val request = object : StringRequest(
             Method.GET, url,
             Response.Listener { response ->
                 val clean = JsonUtils.cleanResponse(response)
                 try {
-                    // ✅ Parse sebagai JSONArray, bukan JSONObject
-                    val jsonArray = JSONArray(clean)
-                    val eskulList = ArrayList<Eskul>()
+                    if (clean.isBlank()) {
+                        listView.adapter = DaftarEskulAdapter(this, arrayListOf()) { }
+                        Toast.makeText(this, "Data eskul kosong", Toast.LENGTH_LONG).show()
+                        return@Listener
+                    }
 
+                    val jsonArray = JsonUtils.extractArray(clean, "data", "eskul", "result")
+                    val eskulList = ArrayList<Eskul>()
 
                     for (i in 0 until jsonArray.length()) {
                         val obj = jsonArray.getJSONObject(i)
@@ -55,12 +57,19 @@ class DaftarEskulActivity : AppCompatActivity() {
                         )
                     }
 
-// Ganti EskulAdapter → DaftarEskulAdapter
+                    if (eskulList.isEmpty()) {
+                        val message = JsonUtils.extractMessage(clean, "message", "pesan", "error")
+                        Toast.makeText(
+                            this,
+                            if (message.isBlank()) "Belum ada data eskul" else message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
                     val adapter = DaftarEskulAdapter(this, eskulList) { eskul ->
                         daftarEskul(eskul.id_eskul)
                     }
                     listView.adapter = adapter
-
                 } catch (e: JSONException) {
                     Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
                 }
@@ -69,7 +78,10 @@ class DaftarEskulActivity : AppCompatActivity() {
                 Toast.makeText(this, "Koneksi gagal: ${error.message}", Toast.LENGTH_SHORT).show()
             }) {}
 
-        Volley.newRequestQueue(this).add(request)
+        request.setShouldCache(false)
+        val queue = Volley.newRequestQueue(this)
+        queue.cache.clear()
+        queue.add(request)
     }
 
     private fun daftarEskul(idEskul: Int) {

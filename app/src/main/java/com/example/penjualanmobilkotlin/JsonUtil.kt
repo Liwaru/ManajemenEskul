@@ -51,4 +51,18 @@ object JsonUtils {
             else -> JSONArray()
         }
     }
+
+    fun extractMessage(response: String, vararg keys: String): String {
+        val clean = cleanResponse(response)
+        if (clean.isBlank()) return ""
+
+        if (!clean.startsWith("{")) {
+            return clean
+        }
+
+        val jsonObject = JSONObject(clean)
+        return keys.firstNotNullOfOrNull { key ->
+            jsonObject.optString(key).takeIf { it.isNotBlank() }
+        }.orEmpty()
+    }
 }

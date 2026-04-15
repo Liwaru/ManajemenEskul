@@ -34,17 +34,19 @@ class ListPendaftaranActivity : AppCompatActivity() {
 
     private fun loadData() {
         val session = SessionManager(this)
-        val idEskul = session.getEskulId()
-        if (idEskul == 0) {
-            txtKosong.text = "Session id_eskul pembina belum tersedia"
+        val params = buildPembinaParams(session)
+        if (params.isEmpty()) {
+            txtKosong.text = "Session id_pembina atau id_eskul belum tersedia"
             txtKosong.visibility = View.VISIBLE
             listView.visibility = View.GONE
             return
         }
-        val url = ApiConfig.GET_PENDAFTARAN
+        fetchPendaftaran(params)
+    }
 
+    private fun fetchPendaftaran(params: Map<String, String>) {
         val request = object : StringRequest(
-            Method.POST, url,
+            Method.POST, ApiConfig.GET_PENDAFTARAN,
             Response.Listener { response ->
                 val clean = JsonUtils.cleanResponse(response)
                 try {
@@ -69,11 +71,25 @@ class ListPendaftaranActivity : AppCompatActivity() {
             }
         ) {
             override fun getParams(): Map<String, String> {
-                return hashMapOf("id_eskul" to idEskul.toString())
+                return params
             }
         }
 
         Volley.newRequestQueue(this).add(request)
+    }
+
+    private fun buildPembinaParams(session: SessionManager): Map<String, String> {
+        val idEskul = session.getEskulId()
+        if (idEskul != 0) {
+            return hashMapOf("id_eskul" to idEskul.toString())
+        }
+
+        val idPembina = session.getPembinaId()
+        if (idPembina.isNotBlank()) {
+            return hashMapOf("id_pembina" to idPembina)
+        }
+
+        return emptyMap()
     }
 
     private fun updateStatusPendaftaran(item: Pendaftaran, status: String, alasan: String) {

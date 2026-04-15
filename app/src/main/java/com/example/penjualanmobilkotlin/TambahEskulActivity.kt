@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.textfield.TextInputEditText
@@ -141,7 +142,11 @@ class TambahEskulActivity : AppCompatActivity() {
                 handleEskulResponse(response, "Data berhasil ditambahkan")
             },
             { error ->
-                Toast.makeText(this, "Volley Error: ${error.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    buildVolleyMessage(error, "menambah", "tambah_eskul.php"),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         ) {
             override fun getParams(): Map<String, String> {
@@ -160,7 +165,11 @@ class TambahEskulActivity : AppCompatActivity() {
                 handleEskulResponse(response, "Data berhasil diupdate")
             },
             { error ->
-                Toast.makeText(this, "Volley Error: ${error.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    buildVolleyMessage(error, "mengupdate", "update_eskul.php"),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         ) {
             override fun getParams(): Map<String, String> {
@@ -230,6 +239,16 @@ class TambahEskulActivity : AppCompatActivity() {
             5 -> R.drawable.musik
             6 -> R.drawable.catur
             else -> R.drawable.ic_default_eskul
+        }
+    }
+
+    private fun buildVolleyMessage(error: VolleyError, action: String, endpointName: String): String {
+        val statusCode = error.networkResponse?.statusCode
+        return when (statusCode) {
+            404 -> "Gagal $action: endpoint $endpointName tidak ditemukan di server"
+            500 -> "Gagal $action: server error 500"
+            null -> "Gagal $action: ${error.message ?: "tidak ada respons dari server"}"
+            else -> "Gagal $action: HTTP $statusCode"
         }
     }
 }

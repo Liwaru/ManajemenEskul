@@ -1,5 +1,6 @@
 package com.example.penjualanmobilkotlin
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.ListView
@@ -48,6 +49,9 @@ class EskulSayaActivity : AppCompatActivity() {
                         txtKosong.visibility = View.GONE
                         listView.visibility = View.VISIBLE
                         listView.adapter = EskulSayaAdapter(this, eskulList)
+                        listView.setOnItemClickListener { _, _, position, _ ->
+                            showEskulPopup(eskulList[position])
+                        }
                     }
                 } catch (e: JSONException) {
                     Toast.makeText(this, "Error parsing: ${e.message}", Toast.LENGTH_LONG).show()
@@ -88,6 +92,17 @@ class EskulSayaActivity : AppCompatActivity() {
                 continue
             }
 
+            val jadwal = obj.optString("jadwal")
+            val jadwalParts = jadwal.split("-")
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
+            val jamMulai = readTime(obj, "jam_mulai", "mulai", "waktu_mulai", "jamMulai")
+                .ifBlank { jadwalParts.getOrNull(0).orEmpty() }
+                .ifBlank { "-" }
+            val jamSelesai = readTime(obj, "jam_selesai", "selesai", "waktu_selesai", "jamSelesai")
+                .ifBlank { jadwalParts.getOrNull(1).orEmpty() }
+                .ifBlank { "-" }
+
             result.add(
                 Eskul(
                     id_eskul = obj.optInt("id_eskul", obj.optInt("eskul_id", 0)),
@@ -98,12 +113,8 @@ class EskulSayaActivity : AppCompatActivity() {
                         .ifBlank { obj.optString("pembina") }
                         .ifBlank { "-" },
                     deskripsi = obj.optString("deskripsi"),
-                    jam_mulai = obj.optString("jam_mulai")
-                        .ifBlank { obj.optString("mulai") }
-                        .ifBlank { "-" },
-                    jam_selesai = obj.optString("jam_selesai")
-                        .ifBlank { obj.optString("selesai") }
-                        .ifBlank { "-" },
+                    jam_mulai = jamMulai,
+                    jam_selesai = jamSelesai,
                     gambar = obj.optString("gambar")
                         .ifBlank { obj.optString("foto") }
                         .ifBlank { obj.optString("image") }
@@ -118,5 +129,27 @@ class EskulSayaActivity : AppCompatActivity() {
         txtKosong.text = message
         txtKosong.visibility = View.VISIBLE
         listView.visibility = View.GONE
+    }
+
+    private fun showEskulPopup(eskul: Eskul) {
+        val detail = buildString {
+            appendLine("Nama Eskul: ${eskul.nama_eskul}")
+            appendLine("Pembina: ${eskul.nama_pembina}")
+            appendLine("Jam Mulai: ${eskul.jam_mulai}")
+            appendLine("Jam Selesai: ${eskul.jam_selesai}")
+            append("Deskripsi: ${if (eskul.deskripsi.isBlank()) "-" else eskul.deskripsi}")
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Detail Eskul")
+            .setMessage(detail)
+            .setPositiveButton("Tutup", null)
+            .show()
+    }
+
+    private fun readTime(obj: JSONObject, vararg keys: String): String {
+        return keys.firstNotNullOfOrNull { key ->
+            obj.optString(key).takeIf { it.isNotBlank() }
+        }.orEmpty()
     }
 }
